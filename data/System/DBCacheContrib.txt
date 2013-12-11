@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="micha" comment="autosave" date="1359041068" format="1.1" version="7"}%
+%META:TOPICINFO{author="ProjectContributor" comment="autosave" date="1359041068" format="1.1" version="7"}%
 ---+!! %TOPIC%
 
 Reusable code that caches Foswiki topics, and provides fast
@@ -130,6 +130,7 @@ Clients use the DBCache by defining a subclass of the
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | |
+|  12 Dec 2013 | Foswikitask:Item12673: allow to store keys with dots in it |
 |  10 Jul 2013 | Foswikitask:Item12542: cache non-standard %META data and make it searchable |
 |  28 Mar 2013 | Foswikitask:Item12458: fix op_ref in search queries |
 |  14 Mar 2013 | Foswikitask:Item12425: make preferences searchable by caching them into a map instead of an array |

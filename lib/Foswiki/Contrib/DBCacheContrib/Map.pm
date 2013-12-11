@@ -240,7 +240,7 @@ sub set {
             $map->set( $field, $val );
         }
         else {
-            print STDERR "ERROR: no map found to store $attr.$field\n";
+            $this->STORE( $attr, $val );
         }
     }
     else {
