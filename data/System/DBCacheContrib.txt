@@ -125,11 +125,12 @@ Clients use the DBCache by defining a subclass of the
 |  Author: | Foswiki:Main/CrawfordCurrie http://c-dot.co.uk, Foswiki:Main/MichaelDaum http://michaeldaumconsulting.com |
 |  Copyright &copy;: | This code is based on an original development of Motorola Inc. and is protected by the following copyrights: <br>Copyright @copy 2002-2003 Motorola Inc. All Rights Reserved. %BR%\
                        Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. %BR%\
-                       Portions copyright &copy; 2013 Michael Daum http://michaeldaumconsulting.com |
+                       Portions copyright &copy; 2013-2014 Michael Daum http://michaeldaumconsulting.com |
 |  License: | GPL |
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | |
+|  18 Mar 2014 | Foswikitask:Item12789: fix dereferencing unblessed cache map |
 |  12 Dec 2013 | Foswikitask:Item12673: allow to store keys with dots in it |
 |  10 Jul 2013 | Foswikitask:Item12542: cache non-standard %META data and make it searchable |
 |  28 Mar 2013 | Foswikitask:Item12458: fix op_ref in search queries |

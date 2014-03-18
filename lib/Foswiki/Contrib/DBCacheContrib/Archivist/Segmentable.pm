@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2013-2014 Michael Daum http://michaeldaumconsulting.com
 #
 package Foswiki::Contrib::DBCacheContrib::Archivist::Segmentable;
 use strict;

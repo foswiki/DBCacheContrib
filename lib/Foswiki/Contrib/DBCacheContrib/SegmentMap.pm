@@ -201,7 +201,7 @@ sub SCALAR {
 1;
 __END__
 
-Copyright (C) Michael Daum 2013 http://michaeldaumconsulting.com
+Copyright (C) Michael Daum 2013-2014 http://michaeldaumconsulting.com
 
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend

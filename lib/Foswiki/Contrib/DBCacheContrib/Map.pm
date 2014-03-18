@@ -236,7 +236,7 @@ sub set {
         $attr = $1;
         my $field = $2;
         my $map   = $this->FETCH($attr);
-        if ( defined($map) ) {
+        if ( ref($map) ) {
             $map->set( $field, $val );
         }
         else {
