@@ -5,7 +5,8 @@ package Foswiki::Contrib::DBCacheContrib;
 use strict;
 use Assert;
 
-use Foswiki::Attrs ();
+use Foswiki::Attrs   ();
+use Foswiki::Sandbox ();
 
 =begin TML
 
@@ -40,8 +41,8 @@ FormQueryPlugin for an example of this.
 
 =cut
 
-our $VERSION = '3.02';
-our $RELEASE = '3.02';
+our $VERSION = '3.03';
+our $RELEASE = '3.03';
 our $SHORTDESCRIPTION =
   'Reusable code that treats forms as if they were table rows in a database';
 
@@ -70,7 +71,9 @@ sub new {
     die $@ if ($@);
 
     my $workDir = Foswiki::Func::getWorkArea('DBCacheContrib');
-    my $this    = bless(
+    $web =
+      Foswiki::Sandbox::untaint( $web, \&Foswiki::Sandbox::validateWebName );
+    my $this = bless(
         {
             _cache     => undef,        # pointer to the DB, load on demand
             _web       => $web,

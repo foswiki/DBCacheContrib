@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="autosave" date="1359041068" format="1.1" version="7"}%
+%META:TOPICINFO{author="ProjectContributor" comment="autosave" date="1398768235" format="1.1" version="1"}%
 ---+!! %TOPIC%
 
 Reusable code that caches Foswiki topics, and provides fast
@@ -130,6 +130,7 @@ Clients use the DBCache by defining a subclass of the
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | |
+|  29 Apr 2014 | Foswikitask:Item12877: web parameter might be tainted |
 |  18 Mar 2014 | Foswikitask:Item12789: fix dereferencing unblessed cache map |
 |  12 Dec 2013 | Foswikitask:Item12673: allow to store keys with dots in it |
 |  10 Jul 2013 | Foswikitask:Item12542: cache non-standard %META data and make it searchable |
