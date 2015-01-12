@@ -8,7 +8,6 @@ lib/Foswiki/Contrib/DBCacheContrib/Archivist.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Archivist/Segmentable.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Archivist/Sereal.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Archivist/Serializable.pm 0644
-lib/Foswiki/Contrib/DBCacheContrib/Archivist/SharedMemory.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Archivist/Storable.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Array.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Config.spec 0644
