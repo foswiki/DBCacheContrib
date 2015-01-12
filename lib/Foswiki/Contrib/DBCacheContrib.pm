@@ -41,8 +41,8 @@ FormQueryPlugin for an example of this.
 
 =cut
 
-our $VERSION = '3.03';
-our $RELEASE = '3.03';
+our $VERSION = '4.00';
+our $RELEASE = '4.00';
 our $SHORTDESCRIPTION =
   'Reusable code that treats forms as if they were table rows in a database';
 
@@ -439,6 +439,7 @@ sub load {
     my $updateCache = shift || 0;
 
     #print STDERR "Called load($updateCache)\n";
+    $this->{_cache} = undef if $updateCache;
 
     return ( 0, 0, 0 ) if ( $this->{_cache} );    # already loaded?
 

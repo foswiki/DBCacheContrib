@@ -1,18 +1,21 @@
-lib/Foswiki/Contrib/DBCacheContrib.pm 0644  Web cache class
+data/System/DBCacheContrib.txt 0644
 lib/Foswiki/Contrib/DBCacheContrib/Archivable.pm 0644
-lib/Foswiki/Contrib/DBCacheContrib/Archivist.pm 0644
-lib/Foswiki/Contrib/DBCacheContrib/Archivist/BDB.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Archivist/BDB/Array.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Archivist/BDB/Collection.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Archivist/BDB/Map.pm 0644
-lib/Foswiki/Contrib/DBCacheContrib/Archivist/Storable.pm 0644
+lib/Foswiki/Contrib/DBCacheContrib/Archivist/BDB.pm 0644
+lib/Foswiki/Contrib/DBCacheContrib/Archivist.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Archivist/Segmentable.pm 0644
+lib/Foswiki/Contrib/DBCacheContrib/Archivist/Sereal.pm 0644
+lib/Foswiki/Contrib/DBCacheContrib/Archivist/Serializable.pm 0644
+lib/Foswiki/Contrib/DBCacheContrib/Archivist/SharedMemory.pm 0644
+lib/Foswiki/Contrib/DBCacheContrib/Archivist/Storable.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Array.pm 0644
-lib/Foswiki/Contrib/DBCacheContrib/Config.spec 0777
+lib/Foswiki/Contrib/DBCacheContrib/Config.spec 0644
 lib/Foswiki/Contrib/DBCacheContrib/Map.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/MemArchivist.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/MemArray.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/MemMap.pm 0644
+lib/Foswiki/Contrib/DBCacheContrib.pm 0644
+lib/Foswiki/Contrib/DBCacheContrib/Search.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/SegmentMap.pm 0644
-lib/Foswiki/Contrib/DBCacheContrib/Search.pm 0644  XQuery-style syntax search object
-data/System/DBCacheContrib.txt  Documentation topic 
