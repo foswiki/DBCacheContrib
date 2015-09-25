@@ -34,3 +34,5 @@ $Foswiki::cfg{DBCacheContrib}{AlwaysUpdateCache} = $FALSE;
 # WARNING: setting this to any value higher than zero can result in the
 # cache becoming out of sync with the .txt files.
 $Foswiki::cfg{DBCacheContrib}{LoadFileLimit} = 0;
+
+1;

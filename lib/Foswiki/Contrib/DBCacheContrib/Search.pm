@@ -31,6 +31,7 @@ contract with the rest of the world.
 package Foswiki::Contrib::DBCacheContrib::Search;
 
 use strict;
+use warnings;
 use Assert;
 
 # Operator precedences
@@ -403,14 +404,22 @@ sub OP_ref {
         $ref  = $form->FETCH($ref);
         return undef unless $ref;       # unknown field
 
-        # get topic object
-        unless ( defined $webDB ) {
-            die "WARNING: no cache found in context";
-            return 0;
+        my ( $refWeb, $refTopic ) =
+          Foswiki::Func::normalizeWebTopicName( $webDB ? $webDB->{_web} : '',
+            $ref );
+        if ( !$webDB || $refWeb ne $webDB->{_web} ) {
+            $webDB = Foswiki::Plugins::DBCachePlugin::Core::getDB($refWeb);
         }
 
-        $map = $webDB->fastget($ref);
-        return undef unless $map;       # unknown ref
+        # get topic object
+        unless ( defined $webDB ) {
+            print STDERR
+              "WARNING: web $refWeb not found processing REF operator\n";
+            return undef;
+        }
+
+        $map = $webDB->fastget($refTopic);
+        return undef unless $map;
     }
 
     # the tail is a property of the referenced topic
@@ -418,6 +427,7 @@ sub OP_ref {
     unless ($val) {
         $val = $map->get($r);
     }
+
     return $val;
 }
 

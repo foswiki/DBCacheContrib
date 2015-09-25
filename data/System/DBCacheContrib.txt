@@ -1,5 +1,6 @@
 %META:TOPICINFO{author="ProjectContributor" comment="autosave" date="1398768235" format="1.1" version="1"}%
 ---+!! %TOPIC%
+%SHORTDESCRIPTION%
 
 Reusable code that caches Foswiki topics, and provides fast
 searches of the content.
@@ -114,22 +115,24 @@ cache is automatically updated.
 Clients use the DBCache by defining a subclass of the
 =Foswiki::Contrib::DBCacheContrib= class. Implementors are stongly recommended to read the POD documentation in the code:
 
-<!--
-   * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
--->
-
 ---++ Installation Instructions
 %$INSTALL_INSTRUCTIONS%
 
----++ Contrib Info
-|  Author: | Foswiki:Main/CrawfordCurrie http://c-dot.co.uk, Foswiki:Main/MichaelDaum https://www.michaeldaumconsulting.com |
-|  Copyright &copy;: | This code is based on an original development of Motorola Inc. and is protected by the following copyrights: <br>Copyright @copy 2002-2003 Motorola Inc. All Rights Reserved. %BR%\
-                       Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. %BR%\
-                       Portions copyright &copy; 2013-2014 Michael Daum http://michaeldaumconsulting.com |
-|  License: | GPL |
-|  Release: | %$RELEASE% |
-|  Version: | %$VERSION% |
-|  Change History: | |
+---++ Copyright &copy;
+
+This code is based on an original development of Motorola Inc. and is protected by the following copyrights: 
+
+   * Copyright &copy; 2002-2003 Motorola Inc. All Rights Reserved. 
+   * Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. 
+   * Portions copyright &copy; 2013-2015 Michael Daum http://michaeldaumconsulting.com 
+
+---++ Dependencies
+%$DEPENDENCIES%
+
+---++ Change History
+
+%TABLE{columnwidths="7em" tablewidth="100%"}%
+|  25 Sep 2015 | Foswikitask:Item13753: ref operator fails under certain conditions |
 |  12 Jan 2015 | Foswikitask:Item13148: added support for CPAN:Sereal |
 |  29 Apr 2014 | Foswikitask:Item12877: web parameter might be tainted |
 |  18 Mar 2014 | Foswikitask:Item12789: fix dereferencing unblessed cache map |
@@ -188,7 +191,17 @@ Clients use the DBCache by defining a subclass of the
 |  5005 | Poddified documentation |
 |  5003 | Initial version |
 |  8 Jul 2004 | Initial version, split out from <nop>FormQueryPlugin |
-|  Dependencies: | %$DEPENDENCIES% |
-|  Home: | http://foswiki.org/Extensions/%TOPIC% |
-|  Support: | http://foswiki.org/Support/%TOPIC% |
 
+<!--
+   * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
+-->
+
+%META:FORM{name="PackageForm"}%
+%META:FIELD{name="Author" title="Author" value="Foswiki:Main/CrawfordCurrie http://c-dot.co.uk, Foswiki:Main/MichaelDaum https://www.michaeldaumconsulting.com"}%
+%META:FIELD{name="Copyright" title="Copyright" value="Copyright &copy; 2002-2003 Motorola Inc. All Rights Reserved. Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. Portions copyright &copy; 2013-2015 Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="Home" title="Home" value="http://foswiki.org/Extensions/%TOPIC%"}%
+%META:FIELD{name="License" title="License" value="GPL"}%
+%META:FIELD{name="Release" title="Release" value="%$RELEASE%"}%
+%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/DBCacheContrib"}%
+%META:FIELD{name="Support" title="Support" value="http://foswiki.org/Support/%TOPIC%"}%
+%META:FIELD{name="Version" title="Version" value="%$VERSION%"}%
