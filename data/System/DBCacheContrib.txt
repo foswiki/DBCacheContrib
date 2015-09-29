@@ -1,6 +1,6 @@
 %META:TOPICINFO{author="ProjectContributor" comment="autosave" date="1398768235" format="1.1" version="1"}%
 ---+!! %TOPIC%
-%SHORTDESCRIPTION%
+%FORMFIELD{"Description"}%
 
 Reusable code that caches Foswiki topics, and provides fast
 searches of the content.
@@ -132,6 +132,7 @@ This code is based on an original development of Motorola Inc. and is protected 
 ---++ Change History
 
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  29 Sep 2015 | Foswikitask:Item13763: performance improvement: use fastget() instead of get() wherever possible |
 |  25 Sep 2015 | Foswikitask:Item13753: ref operator fails under certain conditions |
 |  12 Jan 2015 | Foswikitask:Item13148: added support for CPAN:Sereal |
 |  29 Apr 2014 | Foswikitask:Item12877: web parameter might be tainted |
@@ -192,13 +193,10 @@ This code is based on an original development of Motorola Inc. and is protected 
 |  5003 | Initial version |
 |  8 Jul 2004 | Initial version, split out from <nop>FormQueryPlugin |
 
-<!--
-   * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
--->
-
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Foswiki:Main/CrawfordCurrie http://c-dot.co.uk, Foswiki:Main/MichaelDaum https://www.michaeldaumconsulting.com"}%
 %META:FIELD{name="Copyright" title="Copyright" value="Copyright &copy; 2002-2003 Motorola Inc. All Rights Reserved. Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. Portions copyright &copy; 2013-2015 Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Home" title="Home" value="http://foswiki.org/Extensions/%TOPIC%"}%
 %META:FIELD{name="License" title="License" value="GPL"}%
 %META:FIELD{name="Release" title="Release" value="%$RELEASE%"}%

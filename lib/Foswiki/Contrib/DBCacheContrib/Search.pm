@@ -14,10 +14,10 @@ Get a list of attachments that have a date earlier than 1st January 2000
   my $search = new Foswiki::Contrib::DBCacheContrib::Search("date EARLIER_THAN '1st January 2000'");
 
   foreach my $topic ($db->getKeys()) {
-     my $attachments = $topic->get("attachments");
+     my $attachments = $topic->fastget("attachments");
      foreach my $val ($attachments->getValues()) {
        if ($search->matches($val)) {
-          print $val->get("name") . "\n";
+          print $val->fastget("name") . "\n";
        }
      }
   }
@@ -367,10 +367,10 @@ sub OP_node {
 
     # Only reference the hash if the contained form does not
     # define the field
-    my $form = $map->get("form");
+    my $form = $map->fastget("form");
     my $val;
-    $form = $map->get($form) if $form;
-    $val  = $form->get($r)   if $form;
+    $form = $map->fastget($form) if $form;
+    $val  = $form->get($r)       if $form;
     $val = $map->get($r) unless defined $val;
 
     return $val;
@@ -423,7 +423,7 @@ sub OP_ref {
     }
 
     # the tail is a property of the referenced topic
-    my $val = $map->get( $map->get("form") )->get($r);
+    my $val = $map->fastget( $map->fastget("form") )->get($r);
     unless ($val) {
         $val = $map->get($r);
     }

@@ -24,12 +24,12 @@ Typical usage:
 
   # the DB is a hash of topics keyed on their name
   foreach my $topic ($db->getKeys()) {
-     my $attachments = $db->get($topic)->get("attachments");
+     my $attachments = $db->fastget($topic)->fastget("attachments");
      # attachments is an array
      foreach my $val ($attachments->getValues()) {
-       my $aname = $attachments->get("name");
-       my $acomment = $attachments->get("comment");
-       my $adate = $attachments->get("date");
+       my $aname = $attachments->fastget("name");
+       my $acomment = $attachments->fastget("comment");
+       my $adate = $attachments->fastget("date");
        ...
      }
   }
@@ -277,7 +277,7 @@ sub _loadTopic {
     foreach my $attachment (@attachments) {
         my $att = $archivist->newMap( initial => $attachment );
         if ( !$standardSchema ) {
-            $atts = $meta->get('attachments');
+            $atts = $meta->fastget('attachments');
             if ( !defined($atts) ) {
                 $atts = $archivist->newArray();
                 $meta->set( 'attachments', $atts );
@@ -304,14 +304,14 @@ sub _loadTopic {
     foreach my $key ( $tomPrefs->prefs() ) {
         my $prefs;
         if ($standardSchema) {
-            $prefs = $meta->get('META:PREFERENCE');
+            $prefs = $meta->fastget('META:PREFERENCE');
             if ( !defined($prefs) ) {
                 $prefs = $archivist->newMap();
                 $meta->set( 'META:PREFERENCE', $prefs );
             }
         }
         else {
-            $prefs = $meta->get('preferences');
+            $prefs = $meta->fastget('preferences');
             if ( !defined($prefs) ) {
                 $prefs = $archivist->newMap();
                 $meta->set( 'preferences', $prefs );
@@ -324,14 +324,14 @@ sub _loadTopic {
     foreach my $key ( $tomPrefs->localPrefs() ) {
         my $prefs;
         if ($standardSchema) {
-            $prefs = $meta->get('META:PREFERENCE');
+            $prefs = $meta->fastget('META:PREFERENCE');
             if ( !defined($prefs) ) {
                 $prefs = $archivist->newMap();
                 $meta->set( 'META:PREFERENCE', $prefs );
             }
         }
         else {
-            $prefs = $meta->get('preferences');
+            $prefs = $meta->fastget('preferences');
             if ( !defined($prefs) ) {
                 $prefs = $archivist->newMap();
                 $meta->set( 'preferences', $prefs );
@@ -354,7 +354,7 @@ sub _loadTopic {
             my $array;
             foreach my $record (@records) {
                 my $map = $archivist->newMap( initial => $record );
-                $array = $meta->get( lc($key) );
+                $array = $meta->fastget( lc($key) );
                 unless ( defined($array) ) {
                     $array = $archivist->newArray();
                     $meta->set( lc($key), $array );
