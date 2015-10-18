@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="autosave" date="1398768235" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" date="1445164284" format="1.1" version="1"}%
 ---+!! %TOPIC%
 %FORMFIELD{"Description"}%
 
@@ -132,6 +132,7 @@ This code is based on an original development of Motorola Inc. and is protected 
 ---++ Change History
 
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  18 Oct 2015 | Foswikitask:Item13824: fixed dbcache failing to update topics in subwebs under certain conditions |
 |  29 Sep 2015 | Foswikitask:Item13763: performance improvement: use fastget() instead of get() wherever possible |
 |  25 Sep 2015 | Foswikitask:Item13753: ref operator fails under certain conditions |
 |  12 Jan 2015 | Foswikitask:Item13148: added support for CPAN:Sereal |

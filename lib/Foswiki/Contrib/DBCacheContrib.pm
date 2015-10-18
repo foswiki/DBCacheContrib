@@ -41,8 +41,8 @@ FormQueryPlugin for an example of this.
 
 =cut
 
-our $VERSION = '4.02';
-our $RELEASE = '29 Sep 2015';
+our $VERSION = '4.03';
+our $RELEASE = '18 Oct 2015';
 our $SHORTDESCRIPTION =
   'Reusable code that treats forms as if they were table rows in a database';
 
@@ -615,7 +615,13 @@ Check the file time against what is seen on disc. Return 1 if consistent, 0 if i
 
 sub uptodate {
     my ( $path, $time ) = @_;
-    my ( $web, $topic ) = split( /\./, $path, 2 );
+
+    $path =~ m/^(.*)\.(.*?)$/;
+    my $web   = $1;
+    my $topic = $2;
+
+    $web =~ s/\./\//g;
+
     ASSERT( $web,   $path ) if DEBUG;
     ASSERT( $topic, $path ) if DEBUG;
 
@@ -632,6 +638,7 @@ sub uptodate {
           $Foswiki::Plugins::SESSION->{store}
           ->getTopicLatestRevTime( $web, $topic );
     }
+
     return ( $fileTime == $time ) ? 1 : 0;
 }
 
