@@ -1,8 +1,9 @@
 *.swp
-DBCacheContrib.md5
-DBCacheContrib.sha1
-DBCacheContrib.tgz
-DBCacheContrib.txt
-DBCacheContrib.zip
-DBCacheContrib_installer
-DBCacheContrib_installer.pl
+*,v
+/DBCacheContrib.md5
+/DBCacheContrib.sha1
+/DBCacheContrib.tgz
+/DBCacheContrib.txt
+/DBCacheContrib.zip
+/DBCacheContrib_installer
+/DBCacheContrib_installer.pl

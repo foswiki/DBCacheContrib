@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2015 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2013-2016 Michael Daum http://michaeldaumconsulting.com
 #
 
 # abstract class servig as a common base for Segmentable and Sereal archivist
@@ -162,11 +162,7 @@ sub isModified {
 sub isModifiedSegment {
     my ( $this, $seg ) = @_;
 
-    my $file = $this->_getCacheFileOfSegment($seg) if defined $seg;
-
-    my $time = $this->_getModificationTime($file);
-
-#print STDERR "cache_time-time=".($seg->{'.cache_time'} - $time)."\n" if defined $seg->{'.cache_time'};
+    my $time = $this->_getModificationTime($seg);
 
     return 1
       if $time == 0
@@ -177,11 +173,14 @@ sub isModifiedSegment {
 }
 
 sub _getModificationTime {
-    my ( $this, $cacheFile ) = @_;
+    my ( $this, $seg ) = @_;
 
-    return 0 unless $cacheFile;
-    my @stat = stat($cacheFile);
+    return 0 unless $seg;
 
+    my $file = $this->_getCacheFileOfSegment($seg);
+    return 0 unless $file;
+
+    my @stat = stat($file);
     return $stat[9] || $stat[10] || 0;
 }
 

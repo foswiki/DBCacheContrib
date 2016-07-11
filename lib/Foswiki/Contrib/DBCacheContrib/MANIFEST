@@ -27,4 +27,3 @@ test/unit/DBCacheContrib/DBCacheTest.pm 0644
 test/unit/DBCacheContrib/MapTest.pm 0644
 test/unit/DBCacheContrib/SearchTest.pm 0644
 test/unit/DBCacheContrib/testDB.dat 0644
-TIDY 0644

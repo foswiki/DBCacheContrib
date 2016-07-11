@@ -41,10 +41,13 @@ FormQueryPlugin for an example of this.
 
 =cut
 
-our $VERSION = '4.03';
-our $RELEASE = '18 Oct 2015';
+our $VERSION = '4.10';
+our $RELEASE = '11 Jul 2016';
 our $SHORTDESCRIPTION =
   'Reusable code that treats forms as if they were table rows in a database';
+
+our $INLINE_IMAGE =
+qr/<img\s+[^>]*?\s*src=["']data:(?:[a-z]+\/[a-z\-\.\+]+)?(?:;[a-z\-]+\=[a-z\-]+)?;base64,.*?["']\s*[^>]*?\s*\/?>/;
 
 =begin TML
 
@@ -370,10 +373,23 @@ sub _loadTopic {
         }
     }
 
+    my $all = $tom->getEmbeddedStoreForm();
+
+    $this->cleanUpText($processedText);
+    $this->cleanUpText($all);
+
     $meta->set( 'text', $processedText );
-    $meta->set( 'all', $tom->getEmbeddedStoreForm() ) unless $standardSchema;
+    $meta->set( 'all', $all ) unless $standardSchema;
 
     return $meta;
+}
+
+sub cleanUpText {
+    my $this = shift;
+
+    # remove inline images as they take up a lot of RAM
+    $_[0] =~ s/$INLINE_IMAGE/_IMAGE_/i;
+
 }
 
 =begin TML
