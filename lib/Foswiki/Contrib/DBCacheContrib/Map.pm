@@ -381,7 +381,7 @@ sub toString {
 1;
 __END__
 
-Copyright (C) Crawford Currie 2004-2009, http://c-dot.co.uk
+Copyright (C) Crawford Currie 2004-2017, http://c-dot.co.uk
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

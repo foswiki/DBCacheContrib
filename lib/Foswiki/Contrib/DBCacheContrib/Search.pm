@@ -176,7 +176,7 @@ sub _parse {
                 )
             );
         }
-        elsif ( $string =~ s/^\s*(-?\d+(\.\d*)?(e-?\d+)?)//io ) {
+        elsif ( $string =~ s/^\s*(-?\d+(\.\d*)?(e-?\d+)?)\b//io ) {
             push(
                 @opands,
                 new Foswiki::Contrib::DBCacheContrib::Search(
@@ -408,7 +408,7 @@ sub OP_ref {
           Foswiki::Func::normalizeWebTopicName( $webDB ? $webDB->{_web} : '',
             $ref );
         if ( !$webDB || $refWeb ne $webDB->{_web} ) {
-            $webDB = Foswiki::Plugins::DBCachePlugin::Core::getDB($refWeb);
+            $webDB = Foswiki::Plugins::DBCachePlugin::getDB($refWeb);
         }
 
         # get topic object
@@ -798,7 +798,7 @@ sub addOperator {
 1;
 __END__
 
-Copyright (C) Crawford Currie 2004-2009, http://c-dot.co.uk
+Copyright (C) Crawford Currie 2004-2017, http://c-dot.co.uk
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

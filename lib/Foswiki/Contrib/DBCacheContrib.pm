@@ -41,8 +41,8 @@ FormQueryPlugin for an example of this.
 
 =cut
 
-our $VERSION = '4.10';
-our $RELEASE = '11 Jul 2016';
+our $VERSION = '4.11';
+our $RELEASE = '16 Jan 2017';
 our $SHORTDESCRIPTION =
   'Reusable code that treats forms as if they were table rows in a database';
 
@@ -661,7 +661,7 @@ sub uptodate {
 1;
 __END__
 
-Copyright (C) Crawford Currie 2004-2009, http://c-dot.co.uk
+Copyright (C) Crawford Currie 2004-2017, http://c-dot.co.uk
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

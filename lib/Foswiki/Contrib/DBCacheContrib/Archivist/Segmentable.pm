@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2016 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2013-2017 Foswiki Contributors
 #
 package Foswiki::Contrib::DBCacheContrib::Archivist::Segmentable;
 use strict;
