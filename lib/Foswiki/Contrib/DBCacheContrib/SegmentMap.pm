@@ -48,9 +48,8 @@ sub addSegment {
 
     $this->{_segments}{ $seg->{id} } = $seg;
     $this->{_segmentOfKey}{$_} = $seg foreach $seg->getKeys();
-    $this->{_lastSegment} = $seg if $seg->size() < SEGMENT_SIZE;
-
- #print STDERR "segmentsOfKey=".join(", ", keys %{$this->{_segmentOfKey}})."\n";
+    $this->{_lastSegment} = $seg
+      unless $this->{_lastSegment} || $seg->size() >= SEGMENT_SIZE;
 }
 
 sub getSegments {
@@ -90,16 +89,12 @@ sub getSegment {
     my ( $this, $key ) = @_;
 
     my $seg = $this->getSegmentOfKey($key);
-
-    #print STDERR "segment of $key = $seg->{id}\n" if defined $seg;
-    #print STDERR "segment not found. key=$key\n" unless defined $seg;
     return $seg if defined $seg;
 
     my $lastSegment = $this->{_lastSegment};
     if ( !defined $lastSegment
         || $lastSegment->size() >= SEGMENT_SIZE )
     {
-
         $lastSegment = $this->{_lastSegment} = $this->{_segmentsImpl}->new();
         $lastSegment->{id} = $this->getNextSegmentId();
 

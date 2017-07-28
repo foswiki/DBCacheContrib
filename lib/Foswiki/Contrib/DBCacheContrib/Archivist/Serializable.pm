@@ -114,7 +114,7 @@ sub getRoot {
         foreach my $cacheFile ( $this->_getCacheFiles ) {
             my $seg = $this->deserialize($cacheFile);
 
-            #print STDERR "loading segment $seg->{id}\n";
+           #print STDERR "loading segment $seg->{id} for $this->{_cacheName}\n";
             $this->{root}->addSegment($seg);
 
             # remember the time the file has been loaded

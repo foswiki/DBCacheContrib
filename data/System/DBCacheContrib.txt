@@ -132,6 +132,7 @@ This code is based on an original development of Motorola Inc. and is protected 
 ---++ Change History
 
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  28 Jul 2017 | Foswikitask:Item14449: numeric operands may cause a perl warning when parameters aren't numeric; trying to fill archive segments in a more efficient way |
 |  16 Jan 2017 | Foswikitask:Item14270: oo-ify core; fixed parsing numbers |
 |  09 Jul 2016 | Foswikitask:Item14111: remove inline data images before indexing |
 |  18 Oct 2015 | Foswikitask:Item13824: fixed dbcache failing to update topics in subwebs under certain conditions |

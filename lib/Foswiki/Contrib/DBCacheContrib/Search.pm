@@ -57,7 +57,7 @@ my %operators = (
     'OR'                 => { exec => \&OP_or,                 prec => 1 },
     'FALSE'              => { exec => \&OP_false,              prec => 0 },
     'NODE'               => { exec => \&OP_node,               prec => 0 },
-    'NUMBER'             => { exec => \&OP_string,             prec => 0 },
+    'NUMBER'             => { exec => \&OP_number,             prec => 0 },
     'REF'                => { exec => \&OP_ref,                prec => 0 },
     'STRING'             => { exec => \&OP_string,             prec => 0 },
     'TRUE'               => { exec => \&OP_true,               prec => 0 },
@@ -176,7 +176,7 @@ sub _parse {
                 )
             );
         }
-        elsif ( $string =~ s/^\s*(-?\d+(\.\d*)?(e-?\d+)?)\b//io ) {
+        elsif ( $string =~ s/^\s*([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)\b//io ) {
             push(
                 @opands,
                 new Foswiki::Contrib::DBCacheContrib::Search(
@@ -344,6 +344,9 @@ sub OP_length {
     elsif ( ref($rval) eq 'HASH' ) {
         return scalar( keys %$rval );
     }
+    elsif ( ref($rval) && UNIVERSAL::can( $rval, "size" ) ) {
+        return $rval->size();
+    }
     else {
         return length($rval);
     }
@@ -501,7 +504,13 @@ sub OP_greater {
     my $lval = $l->matches($map);
     return undef unless defined $lval;
 
+    ($lval) = $lval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
+    return undef unless defined $lval;
+
     my $rval = $r->matches($map);
+    return undef unless defined $rval;
+
+    ($rval) = $rval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
     return undef unless defined $rval;
 
     return ( $lval > $rval ) ? 1 : 0;
@@ -515,7 +524,13 @@ sub OP_smaller {
     my $lval = $l->matches($map);
     return undef unless defined $lval;
 
+    ($lval) = $lval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
+    return undef unless defined $lval;
+
     my $rval = $r->matches($map);
+    return undef unless defined $rval;
+
+    ($rval) = $rval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
     return undef unless defined $rval;
 
     return ( $lval < $rval ) ? 1 : 0;
@@ -529,7 +544,13 @@ sub OP_gtequal {
     my $lval = $l->matches($map);
     return undef unless defined $lval;
 
+    ($lval) = $lval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
+    return undef unless defined $lval;
+
     my $rval = $r->matches($map);
+    return undef unless defined $rval;
+
+    ($rval) = $rval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
     return undef unless defined $rval;
 
     return ( $lval >= $rval ) ? 1 : 0;
@@ -543,7 +564,13 @@ sub OP_smequal {
     my $lval = $l->matches($map);
     return undef unless defined $lval;
 
+    ($lval) = $lval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
+    return undef unless defined $lval;
+
     my $rval = $r->matches($map);
+    return undef unless defined $rval;
+
+    ($rval) = $rval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
     return undef unless defined $rval;
 
     return ( $lval <= $rval ) ? 1 : 0;

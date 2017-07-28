@@ -41,8 +41,8 @@ FormQueryPlugin for an example of this.
 
 =cut
 
-our $VERSION = '4.11';
-our $RELEASE = '16 Jan 2017';
+our $VERSION = '4.20';
+our $RELEASE = '28 Jul 2017';
 our $SHORTDESCRIPTION =
   'Reusable code that treats forms as if they were table rows in a database';
 
@@ -643,9 +643,9 @@ sub uptodate {
 
     # SMELL: core API
     my $fileTime;
-    if ( $Foswiki::Plugins::SESSION->can('getApproxRevTime') ) {
+    if ( $Foswiki::Plugins::SESSION->{store}->can('getApproxRevTime') ) {
         $fileTime =
-          $Foswiki::Plugins::SESSION->getApproxRevTime( $web, $topic );
+          $Foswiki::Plugins::SESSION->{store}->getApproxRevTime( $web, $topic );
     }
     else {
 
