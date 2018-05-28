@@ -104,7 +104,7 @@ sub isModified {
 1;
 __END__
 
-Copyright (C) 2007-2017 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors.
+Copyright (C) 2007-2018 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors.
 Foswiki Contributors are listed in the AUTHORS file in the root of this
 distribution. NOTE: Please extend that file, not this notice.
 

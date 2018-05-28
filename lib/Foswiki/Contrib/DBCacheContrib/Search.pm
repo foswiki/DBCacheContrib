@@ -33,6 +33,7 @@ package Foswiki::Contrib::DBCacheContrib::Search;
 use strict;
 use warnings;
 use Assert;
+use Time::ParseDate ();
 
 # Operator precedences
 my %operators = (
@@ -64,10 +65,11 @@ my %operators = (
     'd2n'                => { exec => \&OP_d2n,                prec => 5 },
     'length'             => { exec => \&OP_length,             prec => 5 },
     'defined'            => { exec => \&OP_defined,            prec => 5 },
+    'ALLOWS'             => { exec => \&OP_allows,             prec => 5 },
 );
 
 my $bopRE =
-"AND\\b|OR\\b|!=|=~?|~|<=?|>=?|LATER_THAN\\b|EARLIER_THAN\\b|LATER_THAN_OR_ON\\b|EARLIER_THAN_OR_ON\\b|WITHIN_DAYS\\b|IS_DATE\\b";
+"AND\\b|OR\\b|!=|=~?|~|<=?|>=?|LATER_THAN\\b|EARLIER_THAN\\b|LATER_THAN_OR_ON\\b|EARLIER_THAN_OR_ON\\b|WITHIN_DAYS\\b|IS_DATE\\b|ALLOWS\\b";
 my $uopRE = "!|[lu]c\\b|d2n|length|defined";
 
 my $now = time();
@@ -78,8 +80,6 @@ my $globalContext;    # set as part of a call to match()
 # time.
 sub forceTime {
     my $t = shift;
-
-    require Time::ParseDate;
 
     $now = Time::ParseDate::parsedate($t);
 }
@@ -363,6 +363,28 @@ sub OP_defined {
     return 1;
 }
 
+sub OP_allows {
+    my ( $r, $l, $map ) = @_;
+
+    return undef unless defined $l && defined $r;
+
+    my $lval = $l->matches($map);
+    my $rval = $r->matches($map);
+
+    my $webDB;
+    $webDB = $globalContext->{webDB} if defined $globalContext;
+
+    my ( $web, $topic ) =
+      Foswiki::Func::normalizeWebTopicName( $webDB ? $webDB->{_web} : '',
+        $lval );
+
+    return 0 unless Foswiki::Func::topicExists( $web, $topic );
+
+    my $user = Foswiki::Func::getWikiName();
+    return Foswiki::Func::checkAccessPermission( $rval, $user, undef, $topic,
+        $web );
+}
+
 sub OP_node {
     my ( $r, $l, $map ) = @_;
 
@@ -390,7 +412,8 @@ sub OP_ref {
 
     # parse reference chain
     my %seen;
-    while ( $r =~ /^\@(\w+)\.(.*)$/ ) {
+    my $val;
+    if ( $r =~ /^\@(\w+)\.(.*)$/ ) {
         my $ref = $1;
         $r = $2;
 
@@ -407,28 +430,40 @@ sub OP_ref {
         $ref  = $form->FETCH($ref);
         return undef unless $ref;       # unknown field
 
-        my ( $refWeb, $refTopic ) =
-          Foswiki::Func::normalizeWebTopicName( $webDB ? $webDB->{_web} : '',
-            $ref );
-        if ( !$webDB || $refWeb ne $webDB->{_web} ) {
-            $webDB = Foswiki::Plugins::DBCachePlugin::getDB($refWeb);
-        }
+        $ref =~ s/^\s+|\s+$//g;
+        my @vals = ();
+        foreach my $refItem ( split( /\s*,\s*/, $ref ) ) {
+            my ( $refWeb, $refTopic ) =
+              Foswiki::Func::normalizeWebTopicName(
+                $webDB ? $webDB->{_web} : '', $refItem );
 
-        # get topic object
-        unless ( defined $webDB ) {
-            print STDERR
-              "WARNING: web $refWeb not found processing REF operator\n";
-            return undef;
-        }
+            if ( !$webDB || $refWeb ne $webDB->{_web} ) {
+                $webDB = Foswiki::Plugins::DBCachePlugin::getDB($refWeb);
+            }
 
-        $map = $webDB->fastget($refTopic);
-        return undef unless $map;
+            # get topic object
+            unless ( defined $webDB ) {
+                print STDERR
+                  "WARNING: web $refWeb not found processing REF operator\n";
+                next;
+            }
+
+            $map = $webDB->fastget($refTopic);
+            next unless $map;
+
+            # the tail is a property of the referenced topic
+            $val = $map->fastget( $map->fastget("form") )->get($r);
+            $val = $map->get($r) unless defined $val;
+
+            push @vals, $val;
+        }
+        $val = join( ", ", @vals );
     }
+    else {
 
-    # the tail is a property of the referenced topic
-    my $val = $map->fastget( $map->fastget("form") )->get($r);
-    unless ($val) {
-        $val = $map->get($r);
+        # the tail is a property of the referenced topic
+        $val = $map->fastget( $map->fastget("form") )->get($r);
+        $val = $map->get($r) unless defined $val;
     }
 
     return $val;
@@ -585,7 +620,6 @@ sub OP_within_days {
     return undef unless defined $lval;
 
     if ( $lval && $lval !~ /^-?\d+$/ ) {
-        require Time::ParseDate;
         $lval = Time::ParseDate::parsedate($lval);
     }
     return undef unless defined $lval;
@@ -605,7 +639,6 @@ sub OP_later_than {
     return undef unless defined $lval;
 
     if ( $lval && $lval !~ /^-?\d+$/ ) {
-        require Time::ParseDate;
         $lval = Time::ParseDate::parsedate($lval);
     }
     return undef unless defined $lval;
@@ -615,7 +648,6 @@ sub OP_later_than {
     return undef unless defined $rval;
 
     if ( $rval && $rval !~ /^-?\d+$/ ) {
-        require Time::ParseDate;
         $rval = Time::ParseDate::parsedate($rval);
     }
     return undef unless defined $rval;
@@ -633,7 +665,6 @@ sub OP_later_than_or_on {
     return undef unless defined $lval;
 
     if ( $lval && $lval !~ /^-?\d+$/ ) {
-        require Time::ParseDate;
         $lval = Time::ParseDate::parsedate($lval);
     }
     return undef unless defined $lval;
@@ -642,7 +673,6 @@ sub OP_later_than_or_on {
     my $rval = $r->matches($map);
     return undef unless defined $rval;
     if ( $rval && $rval !~ /^-?\d+$/ ) {
-        require Time::ParseDate;
         $rval = Time::ParseDate::parsedate($rval);
     }
     return undef unless defined $rval;
@@ -660,7 +690,6 @@ sub OP_earlier_than {
     return undef unless defined $lval;
 
     if ( $lval && $lval !~ /^-?\d+$/ ) {
-        require Time::ParseDate;
         $lval = Time::ParseDate::parsedate($lval);
     }
     return undef unless defined $lval;
@@ -669,7 +698,6 @@ sub OP_earlier_than {
     my $rval = $r->matches($map);
     return undef unless defined $rval;
     if ( $rval && $rval !~ /^-?\d+$/ ) {
-        require Time::ParseDate;
         $rval = Time::ParseDate::parsedate($rval);
     }
     return undef unless defined $rval;
@@ -687,7 +715,6 @@ sub OP_earlier_than_or_on {
     return undef unless defined $lval;
 
     if ( $lval && $lval !~ /^-?\d+$/ ) {
-        require Time::ParseDate;
         $lval = Time::ParseDate::parsedate($lval);
     }
     return undef unless defined $lval;
@@ -696,7 +723,6 @@ sub OP_earlier_than_or_on {
     my $rval = $r->matches($map);
     return undef unless defined $rval;
     if ( $rval && $rval !~ /^-?\d+$/ ) {
-        require Time::ParseDate;
         $rval = Time::ParseDate::parsedate($rval);
     }
     return undef unless defined $rval;
@@ -713,7 +739,6 @@ sub OP_is_date {
     my $lval = $l->matches($map);
     return undef unless defined $lval;
     if ( $lval && $lval !~ /^-?\d+$/ ) {
-        require Time::ParseDate;
         $lval = Time::ParseDate::parsedate($lval);
     }
     return 0 unless ( defined($lval) );
@@ -721,7 +746,6 @@ sub OP_is_date {
     my $rval = $r->matches($map);
     return undef unless defined $rval;
     if ( $rval && $rval !~ /^-?\d+$/ ) {
-        require Time::ParseDate;
         $rval = Time::ParseDate::parsedate($rval);
     }
     return undef unless defined $rval;
@@ -825,7 +849,7 @@ sub addOperator {
 1;
 __END__
 
-Copyright (C) Crawford Currie 2004-2017, http://c-dot.co.uk
+Copyright (C) Crawford Currie 2004-2018, http://c-dot.co.uk
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

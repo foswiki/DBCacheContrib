@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1468224433" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" date="1527512282" format="1.1" version="1"}%
 ---+!! %TOPIC%
 %FORMFIELD{"Description"}%
 
@@ -124,7 +124,7 @@ This code is based on an original development of Motorola Inc. and is protected 
 
    * Copyright &copy; 2002-2003 Motorola Inc. All Rights Reserved. 
    * Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. 
-   * Portions copyright &copy; 2013-2017 Michael Daum http://michaeldaumconsulting.com 
+   * Portions copyright &copy; 2013-2018 Michael Daum http://michaeldaumconsulting.com 
 
 ---++ Dependencies
 %$DEPENDENCIES%
@@ -132,6 +132,8 @@ This code is based on an original development of Motorola Inc. and is protected 
 ---++ Change History
 
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  25 May 2018 | added allows operator to match standard query language |
+|  20 Feb 2018 | extend ref operator to dereference multi-value formfields |
 |  28 Jul 2017 | Foswikitask:Item14449: numeric operands may cause a perl warning when parameters aren't numeric; trying to fill archive segments in a more efficient way |
 |  16 Jan 2017 | Foswikitask:Item14270: oo-ify core; fixed parsing numbers |
 |  09 Jul 2016 | Foswikitask:Item14111: remove inline data images before indexing |
