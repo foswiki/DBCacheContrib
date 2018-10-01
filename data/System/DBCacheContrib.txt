@@ -156,6 +156,7 @@ This code is based on an original development of Motorola Inc. and is protected 
 ---++ Change History
 
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  01 Oct 2018 | rationalized parsing dates |
 |  25 May 2018 | added allows operator to match standard query language |
 |  20 Feb 2018 | extend ref operator to dereference multi-value formfields |
 |  28 Jul 2017 | Foswikitask:Item14449: numeric operands may cause a perl warning when parameters aren't numeric; trying to fill archive segments in a more efficient way |
