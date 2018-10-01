@@ -5,8 +5,11 @@ package Foswiki::Contrib::DBCacheContrib;
 use strict;
 use Assert;
 
-use Foswiki::Attrs   ();
-use Foswiki::Sandbox ();
+use Foswiki::Attrs         ();
+use Foswiki::Sandbox       ();
+use Foswiki::OopsException ();
+use Error qw(:try);
+use Time::ParseDate ();
 
 =begin TML
 
@@ -41,8 +44,8 @@ FormQueryPlugin for an example of this.
 
 =cut
 
-our $VERSION = '4.30';
-our $RELEASE = '28 May 2018';
+our $VERSION = '5.00';
+our $RELEASE = '01 Oct 2018';
 our $SHORTDESCRIPTION =
   'Reusable code that treats forms as if they were table rows in a database';
 
@@ -212,6 +215,7 @@ sub _loadTopic {
 
     my $form;
     my $hash;
+    my $formDef;
 
     if ( $hash = $tom->get('FORM') ) {
         my ( $formWeb, $formTopic ) =
@@ -227,6 +231,18 @@ sub _loadTopic {
             $meta->set( 'form', $formTopic );
         }
         $meta->set( $formTopic, $form );
+
+        # get the form definition
+        try {
+            $formDef = new Foswiki::Form( $session, $formWeb, $formTopic );
+        }
+        catch Foswiki::OopsException with {
+
+            # ignore error
+            #my $error = shift;
+            #print STDERR "error: $error\n";
+            $formDef = undef;
+        };
     }
     if ( $hash = $tom->get('TOPICPARENT') ) {
         if ($standardSchema) {
@@ -255,6 +271,7 @@ sub _loadTopic {
             $meta->set( 'moved', $att );
         }
     }
+
     my @fields = $tom->find('FIELD');
     if ( scalar(@fields) ) {
         my $fields;
@@ -262,7 +279,18 @@ sub _loadTopic {
             $fields = $archivist->newArray();
             $meta->set( 'META:FIELD', $fields );
         }
+
         foreach my $field (@fields) {
+
+       # get field definition, check for date type and cache epoch value instead
+            my $epoch;
+            if ($formDef) {
+                my $fieldDef = $formDef->getField( $field->{name} );
+                if ( $fieldDef && $fieldDef->{type} =~ /^date/ ) {
+                    $epoch = parseDate( $field->{value} ) || 0;
+                }
+            }
+
             if ($standardSchema) {
                 my $att = $archivist->newMap( initial => $field );
                 $fields->add($att);
@@ -272,7 +300,16 @@ sub _loadTopic {
                 unless ($form) {
                     $form = $archivist->newMap();
                 }
-                $form->set( $field->{name}, $field->{value} );
+                if ( defined $epoch ) {
+                    $form->set( $field->{name}, $epoch );
+                    $form->set(
+                        $field->{name} . '_origvalue',
+                        $field->{origvalue} // $field->{value}
+                    );
+                }
+                else {
+                    $form->set( $field->{name}, $field->{value} );
+                }
             }
         }
     }
@@ -656,6 +693,45 @@ sub uptodate {
     }
 
     return ( $fileTime == $time ) ? 1 : 0;
+}
+
+=begin TML
+
+---+++ =parseDate($string)= -> epoch
+
+try as hard as possible to parse the string into epoch seconds
+
+=cut
+
+sub parseDate {
+    my $string = shift;
+
+    return unless defined $string && $string ne "";
+    $string =~ s/^\s+|\s+$//g;
+
+    # yyyymmdd ... 8 digits
+    if ( $string =~ /^(\d\d\d\d)(\d\d)(\d\d)$/ ) {
+        $string = "$1-$2-$3";
+    }
+
+    # epoch seconds
+    elsif ( $string =~ /^\-?\d+$/ ) {
+        return $string;
+    }
+
+# dd.mm.yyyy
+# SMELL: this is language dependent...
+# Date::Manip would be a better alternative but is way slower than Time::ParseDate
+    elsif ( $string =~ /^(\d\d)\.(\d\d)\.(\d\d\d\d)$/ ) {
+        $string = "$3-$2-$1";
+    }
+
+    # 20111224T120000
+    elsif ( $string =~ /^(\d\d\d\d)(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)(Z.*?)$/ ) {
+        $string = "$1-$2-$3T$4:$5:$6$7";
+    }
+
+    return Time::ParseDate::parsedate($string);
 }
 
 1;

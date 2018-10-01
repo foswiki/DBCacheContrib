@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1527512282" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1538391464" format="1.1"  version="1"}%
 ---+!! %TOPIC%
 %FORMFIELD{"Description"}%
 
@@ -28,7 +28,7 @@ that accelerate core functions, such as the !QueryAcceleratorPlugin.
    * Perform efficient structured queries on data in forms
 
 ---++ Using the built-in query language
-The query language supported by !DBCacheContrib is very similar to the query language used with %SEARCH, which was derived from it. The contrib can be used in two modes; compatible schema mode (as used by FormQueryPlugin and DBCachePlugin) and standard schema mode (as described in QuerySearch).
+The query language supported by !DBCacheContrib is very similar to the query language used with %SEARCH, which was derived from it. The contrib can be used in two modes; compatible schema mode (as used by !FormQueryPlugin and !DBCachePlugin) and standard schema mode (as described in QuerySearch).
 
 In standard schema mode the schema of the DB is as described in QuerySearch.
 In compatible schema mode, the underlying schema is somewhat different, to
@@ -88,22 +88,46 @@ The following operators are available:
 | <code>&gt;</code> | Boolean | Numeric > |
 | <code>&gt;=</code> | Boolean | Numeric >= |
 | <code>&lt;=</code> | Boolean | Numeric <= |
+| =@= | Node | Access node referenced by LHS. e.g. =ProjectLeader@TopicTitle= returns the formfield =TopicTitle= of the topic stored in the formfield =ProjectLeader=  |
 | =lc= | String | Unary lower case |
 | =uc= | String | Unary UPPER CASE |
+| =d2n= | Number | Convert a date string into epoch seconds |
+| =length= | Number | Length of an array, e.g. =length(attachments)= to return the number of attachments |
+| <code>!</code> | Boolean | Unary NOT |
+| =AND= | Boolean | AND |
+| =OR= | Boolean | OR |
+| =ALLOWS= | Boolean | LHS is a topic that allows to perform RHS by the current user e.g. =topic ALLOWS VIEW= is true when the current user is allowed to view the given topic |
+| <code>()</code> | any | Bracketed subexpression |
 | =IS_DATE= | Boolean | Compare two dates e.g. '1 Apr 2003' IS_DATE '1 Apr 2004' |
 | =EARLIER_THAN= | Boolean | Date is earlier than the given date |
 | =EARLIER_THAN_OR_ON= | Boolean | Date is earlier than, or on, the given date |
 | =LATER_THAN= | Boolean | LHS is later than the given date |
 | =LATER_THAN_OR_ON= | Boolean | LHS is later than the given date |
 | =WITHIN_DAYS= | Boolean | Date (which must be in the future) is within n _working_ days of todays date |
-| <code>!</code> | Boolean | Unary NOT |
-| =AND= | Boolean | AND |
-| =OR= | Boolean | OR |
-| <code>()</code> | any | Bracketed subexpression |
-
-Dates for the date operators (=IS_DATE=, =EARLIER_THAN= etc) must be dates in the format expected by =Time::ParseDate= (like the [[Foswiki:Extensions/ActionTrackerPlugin][ActionTrackerPlugin]]). =WITHIN_DAYS= works out the number of _working_ days assuming a 5 day week (i.e. excluding Saturday and Sunday). Apologies in advance if your weekend is offset &plusmn; a day! Integers will automatically be converted to dates, by assuming they represent a number of seconds since midnight GMT on 1st January 1970. You can also use the =d2n= operator to convert a date string to such an integer.
 
 %ENDSECTION{"searchoperators"}%
+
+---++ Working with dates
+
+!DBCacheContrib can parse dates during _indexing time_, that is when the topic is saved and further stored into its internal database format. Dates must be explicitly marked as being of such
+a data type by means of a [[%SYSTEMWEB%.DataForms][DataForm definition]]. A date formfield is stored in epoch seconds as well as in a secondary attribute named =&lt;fieldName_origvalue&gt;=.
+This lets you access the original value as it was edited by the user. 
+
+As an effect, dates may be compared and sorted directly, i.e. without any further conversion during _search time_. Two dates can be compared directly against each other using numerical comparison
+operators. This means that the operators =IS_DATE=, =EARLIER_THAN=, =EARLIERTHAN_OR_ON=, =LATER_THAN= and =LATER_THAN_OR_ON= can be replaced with ===, =&lt;=, =&lt;==, =&gt;= and =&gt;== respectively.
+
+In the case that you have to specify date strings explicitly as part of the query, use =d2n(&lt;date-string)= to first convert it into an integer before comparing it against a date formfield.
+
+=WITHIN_DAYS= works out the number of _working_ days assuming a 5 day week (i.e. excluding Saturday and Sunday). Apologies in advance if your weekend is offset &plusmn; a day! Integers will automatically be converted to dates, by assuming they represent a number of seconds since midnight GMT on 1st January 1970. You can also use the =d2n= operator to convert a date string to such an integer.
+
+---++ Date formats
+
+Dates must be dates in the format expected by =Time::ParseDate=. In addition the following formats are understood as well:
+
+   * =yyyymmdd=
+   * =dd.mm.yyyy=
+   * =yyyymmddThhmmss=
+   * =yyyymmddThhmmssZ&lt;offset>=
 
 ---++ The cache
 To achieve best perfomance the plugin caches the data read from topics in a
@@ -201,11 +225,11 @@ This code is based on an original development of Motorola Inc. and is protected 
 
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Foswiki:Main/CrawfordCurrie http://c-dot.co.uk, Foswiki:Main/MichaelDaum https://www.michaeldaumconsulting.com"}%
-%META:FIELD{name="Copyright" title="Copyright" value="Copyright &copy; 2002-2003 Motorola Inc. All Rights Reserved. Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. Portions copyright &copy; 2013-2017 Foswiki Contributors"}%
+%META:FIELD{name="Version" title="Version" value="%25$VERSION%25"}%
+%META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
-%META:FIELD{name="Home" title="Home" value="https://foswiki.org/Extensions/%TOPIC%"}%
-%META:FIELD{name="License" title="License" value="GPL"}%
-%META:FIELD{name="Release" title="Release" value="%$RELEASE%"}%
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/DBCacheContrib"}%
-%META:FIELD{name="Support" title="Support" value="https://foswiki.org/Support/%TOPIC%"}%
-%META:FIELD{name="Version" title="Version" value="%$VERSION%"}%
+%META:FIELD{name="Copyright" title="Copyright" value="Copyright &copy; 2002-2003 Motorola Inc. All Rights Reserved. Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. Portions copyright &copy; 2013-2017 Foswiki Contributors"}%
+%META:FIELD{name="License" title="License" value="GPL"}%
+%META:FIELD{name="Home" title="Home" value="https://foswiki.org/Extensions/%25TOPIC%25"}%
+%META:FIELD{name="Support" title="Support" value="https://foswiki.org/Support/%25TOPIC%25"}%

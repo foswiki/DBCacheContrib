@@ -33,7 +33,7 @@ package Foswiki::Contrib::DBCacheContrib::Search;
 use strict;
 use warnings;
 use Assert;
-use Time::ParseDate ();
+use Foswiki::Contrib::DBCacheContrib ();
 
 # Operator precedences
 my %operators = (
@@ -81,7 +81,7 @@ my $globalContext;    # set as part of a call to match()
 sub forceTime {
     my $t = shift;
 
-    $now = Time::ParseDate::parsedate($t);
+    $now = Foswiki::Contrib::DBCacheContrib::parseDate($t);
 }
 
 =begin TML
@@ -306,17 +306,6 @@ sub OP_uc {
     return uc($rval);
 }
 
-sub OP_i2d {
-    my ( $r, $l, $map ) = @_;
-
-    return undef unless defined $r;
-
-    my $rval = $r->matches($map);
-    return undef unless defined $rval;
-
-    return Foswiki::Time::formatTime( $rval, '$email', 'gmtime' );
-}
-
 sub OP_d2n {
     my ( $r, $l, $map ) = @_;
 
@@ -325,9 +314,7 @@ sub OP_d2n {
     my $rval = $r->matches($map);
     return undef unless defined $rval;
 
-    return $rval if $rval =~ /^\d+$/;
-    require Foswiki::Time;
-    return Foswiki::Time::parseTime( $rval, 1 );
+    return Foswiki::Contrib::DBCacheContrib::parseDate($rval);
 }
 
 sub OP_length {
@@ -452,17 +439,24 @@ sub OP_ref {
             next unless $map;
 
             # the tail is a property of the referenced topic
-            $val = $map->fastget( $map->fastget("form") )->get($r);
+            my $form = $map->fastget("form");
+            next unless $form;
+            $form = $map->fastget($form);
+            next unless $form;
+
+            $val = $form->get($r);
             $val = $map->get($r) unless defined $val;
 
-            push @vals, $val;
+            push @vals, $val if defined $val && $val ne '';
         }
         $val = join( ", ", @vals );
     }
     else {
 
         # the tail is a property of the referenced topic
-        $val = $map->fastget( $map->fastget("form") )->get($r);
+        my $form = $map->fastget("form");
+        $form = $map->fastget($form) if defined $form;
+        $val  = $form->get($r)       if defined $form;
         $val = $map->get($r) unless defined $val;
     }
 
@@ -619,9 +613,7 @@ sub OP_within_days {
     my $lval = $l->matches($map);
     return undef unless defined $lval;
 
-    if ( $lval && $lval !~ /^-?\d+$/ ) {
-        $lval = Time::ParseDate::parsedate($lval);
-    }
+    $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
     return undef unless defined $lval;
 
     my $rval = $r->matches($map);
@@ -638,20 +630,14 @@ sub OP_later_than {
     my $lval = $l->matches($map);
     return undef unless defined $lval;
 
-    if ( $lval && $lval !~ /^-?\d+$/ ) {
-        $lval = Time::ParseDate::parsedate($lval);
-    }
+    $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
     return undef unless defined $lval;
-    return undef if $lval !~ /^[+-]?\d+$/;
 
     my $rval = $r->matches($map);
     return undef unless defined $rval;
 
-    if ( $rval && $rval !~ /^-?\d+$/ ) {
-        $rval = Time::ParseDate::parsedate($rval);
-    }
+    $rval = Foswiki::Contrib::DBCacheContrib::parseDate($rval);
     return undef unless defined $rval;
-    return undef if $rval !~ /^[+-]?\d+$/;
 
     return ( $lval > $rval ) ? 1 : 0;
 }
@@ -664,19 +650,14 @@ sub OP_later_than_or_on {
     my $lval = $l->matches($map);
     return undef unless defined $lval;
 
-    if ( $lval && $lval !~ /^-?\d+$/ ) {
-        $lval = Time::ParseDate::parsedate($lval);
-    }
+    $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
     return undef unless defined $lval;
-    return undef if $lval !~ /^[+-]?\d+$/;
 
     my $rval = $r->matches($map);
     return undef unless defined $rval;
-    if ( $rval && $rval !~ /^-?\d+$/ ) {
-        $rval = Time::ParseDate::parsedate($rval);
-    }
+
+    $rval = Foswiki::Contrib::DBCacheContrib::parseDate($rval);
     return undef unless defined $rval;
-    return undef if $rval !~ /^[+-]?\d+$/;
 
     return ( $lval >= $rval ) ? 1 : 0;
 }
@@ -689,19 +670,14 @@ sub OP_earlier_than {
     my $lval = $l->matches($map);
     return undef unless defined $lval;
 
-    if ( $lval && $lval !~ /^-?\d+$/ ) {
-        $lval = Time::ParseDate::parsedate($lval);
-    }
+    $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
     return undef unless defined $lval;
-    return undef if $lval !~ /^[+-]?\d+$/;
 
     my $rval = $r->matches($map);
     return undef unless defined $rval;
-    if ( $rval && $rval !~ /^-?\d+$/ ) {
-        $rval = Time::ParseDate::parsedate($rval);
-    }
+
+    $rval = Foswiki::Contrib::DBCacheContrib::parseDate($rval);
     return undef unless defined $rval;
-    return undef if $rval !~ /^[+-]?\d+$/;
 
     return ( $lval < $rval ) ? 1 : 0;
 }
@@ -714,19 +690,14 @@ sub OP_earlier_than_or_on {
     my $lval = $l->matches($map);
     return undef unless defined $lval;
 
-    if ( $lval && $lval !~ /^-?\d+$/ ) {
-        $lval = Time::ParseDate::parsedate($lval);
-    }
+    $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
     return undef unless defined $lval;
-    return undef if $lval !~ /^[+-]?\d+$/;
 
     my $rval = $r->matches($map);
     return undef unless defined $rval;
-    if ( $rval && $rval !~ /^-?\d+$/ ) {
-        $rval = Time::ParseDate::parsedate($rval);
-    }
+
+    $rval = Foswiki::Contrib::DBCacheContrib::parseDate($rval);
     return undef unless defined $rval;
-    return undef if $rval !~ /^[+-]?\d+$/;
 
     return ( $lval <= $rval ) ? 1 : 0;
 }
@@ -738,16 +709,14 @@ sub OP_is_date {
 
     my $lval = $l->matches($map);
     return undef unless defined $lval;
-    if ( $lval && $lval !~ /^-?\d+$/ ) {
-        $lval = Time::ParseDate::parsedate($lval);
-    }
+
+    $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
     return 0 unless ( defined($lval) );
 
     my $rval = $r->matches($map);
     return undef unless defined $rval;
-    if ( $rval && $rval !~ /^-?\d+$/ ) {
-        $rval = Time::ParseDate::parsedate($rval);
-    }
+
+    $rval = Foswiki::Contrib::DBCacheContrib::parseDate($rval);
     return undef unless defined $rval;
 
     return ( $lval == $rval ) ? 1 : 0;
