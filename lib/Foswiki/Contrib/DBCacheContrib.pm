@@ -44,8 +44,8 @@ FormQueryPlugin for an example of this.
 
 =cut
 
-our $VERSION = '5.00';
-our $RELEASE = '01 Oct 2018';
+our $VERSION = '5.01';
+our $RELEASE = '26 Nov 2018';
 our $SHORTDESCRIPTION =
   'Reusable code that treats forms as if they were table rows in a database';
 
@@ -491,7 +491,6 @@ sub load {
     my $this = shift;
     my $updateCache = shift || 0;
 
-    #print STDERR "Called load($updateCache)\n";
     $this->{_cache} = undef if $updateCache;
 
     return ( 0, 0, 0 ) if ( $this->{_cache} );    # already loaded?
@@ -524,8 +523,6 @@ sub load {
             $this->{archivist}->sync( $this->{_cache} );
         }
     }
-
-#print STDERR "DBCacheContrib: Loaded $readFromCache from cache, $readFromFile from file, $removed removed\n";
 
     return ( $readFromCache, $readFromFile, $removed );
 }
@@ -709,13 +706,8 @@ sub parseDate {
     return unless defined $string && $string ne "";
     $string =~ s/^\s+|\s+$//g;
 
-    # yyyymmdd ... 8 digits
-    if ( $string =~ /^(\d\d\d\d)(\d\d)(\d\d)$/ ) {
-        $string = "$1-$2-$3";
-    }
-
     # epoch seconds
-    elsif ( $string =~ /^\-?\d+$/ ) {
+    if ( $string =~ /^\-?\d+$/ ) {
         return $string;
     }
 

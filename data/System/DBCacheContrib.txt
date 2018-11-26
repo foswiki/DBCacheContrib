@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1538391464" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1543234776" format="1.1"  version="1"}%
 ---+!! %TOPIC%
 %FORMFIELD{"Description"}%
 
@@ -124,7 +124,6 @@ In the case that you have to specify date strings explicitly as part of the quer
 
 Dates must be dates in the format expected by =Time::ParseDate=. In addition the following formats are understood as well:
 
-   * =yyyymmdd=
    * =dd.mm.yyyy=
    * =yyyymmddThhmmss=
    * =yyyymmddThhmmssZ&lt;offset>=
@@ -156,6 +155,7 @@ This code is based on an original development of Motorola Inc. and is protected 
 ---++ Change History
 
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  26 Nov 2018 | don't interpret any 8 digits as yyyymmdd; updated dependency on Time::PaseDate |
 |  01 Oct 2018 | rationalized parsing dates |
 |  25 May 2018 | added allows operator to match standard query language |
 |  20 Feb 2018 | extend ref operator to dereference multi-value formfields |
