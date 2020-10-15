@@ -34,6 +34,7 @@ use strict;
 use warnings;
 use Assert;
 use Foswiki::Contrib::DBCacheContrib ();
+use Foswiki::Time                    ();
 
 # Operator precedences
 my %operators = (
@@ -62,15 +63,17 @@ my %operators = (
     'REF'                => { exec => \&OP_ref,                prec => 0 },
     'STRING'             => { exec => \&OP_string,             prec => 0 },
     'TRUE'               => { exec => \&OP_true,               prec => 0 },
+    'n2d'                => { exec => \&OP_n2d,                prec => 5 },
     'd2n'                => { exec => \&OP_d2n,                prec => 5 },
     'length'             => { exec => \&OP_length,             prec => 5 },
     'defined'            => { exec => \&OP_defined,            prec => 5 },
     'ALLOWS'             => { exec => \&OP_allows,             prec => 5 },
+    'displayValue'       => { exec => \&OP_displayValue,       prec => 5 },
 );
 
 my $bopRE =
 "AND\\b|OR\\b|!=|=~?|~|<=?|>=?|LATER_THAN\\b|EARLIER_THAN\\b|LATER_THAN_OR_ON\\b|EARLIER_THAN_OR_ON\\b|WITHIN_DAYS\\b|IS_DATE\\b|ALLOWS\\b";
-my $uopRE = "!|[lu]c\\b|d2n|length|defined";
+my $uopRE = "!|[lu]c\\b|d2n|n2d|length|defined|displayValue";
 
 my $now = time();
 
@@ -104,6 +107,8 @@ sub new {
         else {
             my $rest;
             ( $this, $rest ) = _parse($string);
+            print STDERR "WARNING: '$rest'\n"
+              if defined $rest && $rest !~ /^\s*$/;
         }
     }
     else {
@@ -247,12 +252,12 @@ sub OP_number { return $_[0]; }
 sub OP_or {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l;
+    return unless defined $l;
 
     my $lval = $l->matches($map);
     return 1 if $lval;
 
-    return undef unless defined $r;
+    return unless defined $r;
 
     my $rval = $r->matches($map);
     return 1 if $rval;
@@ -263,12 +268,12 @@ sub OP_or {
 sub OP_and {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l;
+    return unless defined $l;
 
     my $lval = $l->matches($map);
     return 0 unless $lval;
 
-    return undef unless defined $r;
+    return unless defined $r;
 
     my $rval = $r->matches($map);
     return 1 if $rval;
@@ -279,7 +284,7 @@ sub OP_and {
 sub OP_not {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $r;
+    return unless defined $r;
 
     return ( $r->matches($map) ) ? 0 : 1;
 }
@@ -287,10 +292,10 @@ sub OP_not {
 sub OP_lc {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $r;
+    return unless defined $r;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return lc($rval);
 }
@@ -298,21 +303,32 @@ sub OP_lc {
 sub OP_uc {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $r;
+    return unless defined $r;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return uc($rval);
+}
+
+sub OP_n2d {
+    my ( $r, $l, $map ) = @_;
+
+    return unless defined $r;
+
+    my $rval = $r->matches($map);
+    return unless defined $rval;
+
+    return Foswiki::Time::formatTime($rval);
 }
 
 sub OP_d2n {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $r;
+    return unless defined $r;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return Foswiki::Contrib::DBCacheContrib::parseDate($rval);
 }
@@ -320,10 +336,10 @@ sub OP_d2n {
 sub OP_length {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $r;
+    return unless defined $r;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     if ( ref($rval) eq 'ARRAY' ) {
         return scalar(@$rval);
@@ -353,7 +369,7 @@ sub OP_defined {
 sub OP_allows {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
     my $rval = $r->matches($map);
@@ -375,23 +391,37 @@ sub OP_allows {
 sub OP_node {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless ( $map && defined $r );
+    return unless ( $map && defined $r );
 
-    # Only reference the hash if the contained form does not
-    # define the field
-    my $form = $map->fastget("form");
-    my $val;
-    $form = $map->fastget($form) if $form;
-    $val  = $form->get($r)       if $form;
+    my $val = $map->getFieldValue($r);
     $val = $map->get($r) unless defined $val;
-
     return $val;
+}
+
+sub OP_displayValue {
+    my ( $r, $l, $map ) = @_;
+
+    return unless defined $r;
+
+    my $fieldName = $r->matches($map);
+    return unless defined $fieldName;
+
+    my $fieldDef = $map->getFieldDef($fieldName);
+    return unless $fieldDef;
+
+    my $fieldValue = $map->getDisplayValue($fieldName);
+    return unless $fieldValue;
+
+    $fieldValue = translate( $map, $fieldValue )
+      if $fieldDef->{type} =~ /\+values/;
+
+    return $fieldValue;
 }
 
 sub OP_ref {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless ( $map && defined $r );
+    return unless ( $map && defined $r );
 
     # get web db
     my $webDB;
@@ -405,17 +435,17 @@ sub OP_ref {
         $r = $2;
 
         # protect against infinite loops
-        return undef if $seen{$ref};    # outch
+        return if $seen{$ref};    # outch
         $seen{$ref} = 1;
 
         # get form
         my $form = $map->FETCH('form');
-        return undef unless $form;      # no form
+        return unless $form;      # no form
 
         # get refered topic
         $form = $map->FETCH($form);
         $ref  = $form->FETCH($ref);
-        return undef unless $ref;       # unknown field
+        return unless $ref;       # unknown field
 
         $ref =~ s/^\s+|\s+$//g;
         my @vals = ();
@@ -466,7 +496,7 @@ sub OP_ref {
 sub OP_equal {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
     my $rval = $r->matches($map);
@@ -480,7 +510,7 @@ sub OP_equal {
 sub OP_not_equal {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
     my $rval = $r->matches($map);
@@ -494,12 +524,12 @@ sub OP_not_equal {
 sub OP_match {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l;
+    return unless defined $l;
 
     my $lval = $l->matches($map);
     return 0 unless defined $lval;
 
-    return undef unless defined $r;
+    return unless defined $r;
 
     my $rval = $r->matches($map);
     return 0 unless defined $rval;
@@ -510,13 +540,13 @@ sub OP_match {
 sub OP_contains {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
     return 0 unless defined $lval;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     $rval =~ s/\./\\./g;
     $rval =~ s/\?/./g;
@@ -528,19 +558,19 @@ sub OP_contains {
 sub OP_greater {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     ($lval) = $lval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     ($rval) = $rval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return ( $lval > $rval ) ? 1 : 0;
 }
@@ -548,19 +578,19 @@ sub OP_greater {
 sub OP_smaller {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     ($lval) = $lval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     ($rval) = $rval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return ( $lval < $rval ) ? 1 : 0;
 }
@@ -568,19 +598,19 @@ sub OP_smaller {
 sub OP_gtequal {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     ($lval) = $lval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     ($rval) = $rval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return ( $lval >= $rval ) ? 1 : 0;
 }
@@ -588,19 +618,19 @@ sub OP_gtequal {
 sub OP_smequal {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     ($lval) = $lval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     ($rval) = $rval =~ /([+-]?\d+(?:\.\d*)?(?:e[+-]?\d+)?)/;
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return ( $lval <= $rval ) ? 1 : 0;
 }
@@ -608,16 +638,16 @@ sub OP_smequal {
 sub OP_within_days {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return ( $lval >= $now && workingDays( $now, $lval ) <= $rval ) ? 1 : 0;
 }
@@ -625,19 +655,19 @@ sub OP_within_days {
 sub OP_later_than {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     $rval = Foswiki::Contrib::DBCacheContrib::parseDate($rval);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return ( $lval > $rval ) ? 1 : 0;
 }
@@ -645,19 +675,19 @@ sub OP_later_than {
 sub OP_later_than_or_on {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     $rval = Foswiki::Contrib::DBCacheContrib::parseDate($rval);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return ( $lval >= $rval ) ? 1 : 0;
 }
@@ -665,19 +695,19 @@ sub OP_later_than_or_on {
 sub OP_earlier_than {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     $rval = Foswiki::Contrib::DBCacheContrib::parseDate($rval);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return ( $lval < $rval ) ? 1 : 0;
 }
@@ -685,19 +715,19 @@ sub OP_earlier_than {
 sub OP_earlier_than_or_on {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && defined $r;
+    return unless defined $l && defined $r;
 
     my $lval = $l->matches($map);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     $rval = Foswiki::Contrib::DBCacheContrib::parseDate($rval);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return ( $lval <= $rval ) ? 1 : 0;
 }
@@ -705,21 +735,60 @@ sub OP_earlier_than_or_on {
 sub OP_is_date {
     my ( $r, $l, $map ) = @_;
 
-    return undef unless defined $l && $r;
+    return unless defined $l && $r;
 
     my $lval = $l->matches($map);
-    return undef unless defined $lval;
+    return unless defined $lval;
 
     $lval = Foswiki::Contrib::DBCacheContrib::parseDate($lval);
     return 0 unless ( defined($lval) );
 
     my $rval = $r->matches($map);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     $rval = Foswiki::Contrib::DBCacheContrib::parseDate($rval);
-    return undef unless defined $rval;
+    return unless defined $rval;
 
     return ( $lval == $rval ) ? 1 : 0;
+}
+
+sub translate {
+    my ( $map, $string ) = @_;
+
+    return unless defined $string;
+
+    my $result;
+    if ( defined $globalContext ) {
+        $globalContext->{translations} ||= {};
+        $result = $globalContext->{translations}{$string};
+    }
+
+    unless ( defined $result ) {
+
+        $result = $string;
+        $result =~
+          s/^_+//;    # strip leading underscore as maketext doesnt like it
+
+        my $context = Foswiki::Func::getContext();
+        if ( $context->{'MultiLingualPluginEnabled'} ) {
+            require Foswiki::Plugins::MultiLingualPlugin;
+            my $web   = $map->fastget("web");
+            my $topic = $map->fastget("topic");
+
+            $result =
+              Foswiki::Plugins::MultiLingualPlugin::translate( $result, $web,
+                $topic );
+        }
+        else {
+            $result = $Foswiki::Plugins::SESSION->i18n->maketext($result);
+        }
+
+        $result //= $string;
+        $globalContext->{translations}{$string} = $result
+          if defined $globalContext;
+    }
+
+    return $result;
 }
 
 # PUBLIC STATIC calculate working days between two times
@@ -818,7 +887,7 @@ sub addOperator {
 1;
 __END__
 
-Copyright (C) Crawford Currie 2004-2018, http://c-dot.co.uk
+Copyright (C) 2004-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

@@ -1,4 +1,3 @@
-Time::ParseDate,>=2015,cpan,Required. 
 Storable,>=2.07,cpan,Required. 
 Sereal,>=3.00,cpan,Optional
 BerkeleyDB,>=0,cpan,Optional, still experimental.

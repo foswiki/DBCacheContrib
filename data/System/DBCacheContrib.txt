@@ -90,8 +90,10 @@ The following operators are available:
 | <code>&lt;=</code> | Boolean | Numeric <= |
 | =@= | Node | Access node referenced by LHS. e.g. =ProjectLeader@TopicTitle= returns the formfield =TopicTitle= of the topic stored in the formfield =ProjectLeader=  |
 | =lc= | String | Unary lower case |
+| =displayValue= | String | return display value of a formfield, e.g. =displayValue('State')= |
 | =uc= | String | Unary UPPER CASE |
 | =d2n= | Number | Convert a date string into epoch seconds |
+| =n2d= | String | Convert epoch seconds into a date string |
 | =length= | Number | Length of an array, e.g. =length(attachments)= to return the number of attachments |
 | <code>!</code> | Boolean | Unary NOT |
 | =AND= | Boolean | AND |
@@ -147,7 +149,7 @@ This code is based on an original development of Motorola Inc. and is protected 
 
    * Copyright &copy; 2002-2003 Motorola Inc. All Rights Reserved. 
    * Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. 
-   * Portions copyright &copy; 2013-2018 Michael Daum http://michaeldaumconsulting.com 
+   * Portions copyright &copy; 2013-2020 Foswiki Contributors
 
 ---++ Dependencies
 %$DEPENDENCIES%
@@ -155,6 +157,13 @@ This code is based on an original development of Motorola Inc. and is protected 
 ---++ Change History
 
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  15 Oct 2020 | new =n2d()= operator to convert epoch seconds to date string; \
+                 new =displayValue()= operator to query not only for storage values but also for their displayed _and_ translated form; \
+                 translating display values using the core <nop>I18N module or Foswiki:Extensions/MultiLingualPlugin if installed; \
+                 read default formfield values while indexing a topic; \
+                 removed dependency on Time::ParseDate; \
+                 fixed unit tests; \
+                 addess perl critics |
 |  26 Nov 2018 | don't interpret any 8 digits as yyyymmdd; updated dependency on Time::PaseDate |
 |  01 Oct 2018 | rationalized parsing dates |
 |  25 May 2018 | added allows operator to match standard query language |
@@ -225,12 +234,12 @@ This code is based on an original development of Motorola Inc. and is protected 
 |  8 Jul 2004 | Initial version, split out from <nop>FormQueryPlugin |
 
 %META:FORM{name="PackageForm"}%
-%META:FIELD{name="Author" title="Author" value="Foswiki:Main/CrawfordCurrie http://c-dot.co.uk, Foswiki:Main/MichaelDaum https://www.michaeldaumconsulting.com"}%
+%META:FIELD{name="Author" title="Author" value="Foswiki:Main/CrawfordCurrie http://c-dot.co.uk, Foswiki:Main/MichaelDaum"}%
 %META:FIELD{name="Version" title="Version" value="%25$VERSION%25"}%
 %META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/DBCacheContrib"}%
-%META:FIELD{name="Copyright" title="Copyright" value="Copyright &copy; 2002-2003 Motorola Inc. All Rights Reserved. Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. Portions copyright &copy; 2013-2017 Foswiki Contributors"}%
+%META:FIELD{name="Copyright" title="Copyright" value="Copyright &copy; 2002-2003 Motorola Inc. All Rights Reserved. Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. Portions copyright &copy; 2013-2020 Foswiki Contributors"}%
 %META:FIELD{name="License" title="License" value="GPL"}%
 %META:FIELD{name="Home" title="Home" value="https://foswiki.org/Extensions/%25TOPIC%25"}%
 %META:FIELD{name="Support" title="Support" value="https://foswiki.org/Support/%25TOPIC%25"}%

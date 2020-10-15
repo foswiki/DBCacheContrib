@@ -1,8 +1,11 @@
 package ArrayTest;
+
+use strict;
+use warnings;
+
 use DBCacheContribTestCase;
 our @ISA = qw( DBCacheContribTestCase );
 
-use strict;
 use Foswiki::Contrib::DBCacheContrib::Search;
 
 use Devel::Leak;
@@ -48,16 +51,15 @@ sub verify_array {
 sub verify_gets {
     my $this  = shift;
     my $array = $this->{ar}->newArray();
-    my $i;
-    for ( $i = 0 ; $i < 10 ; $i++ ) {
+    for ( my $i = 0 ; $i < 10 ; $i++ ) {
         my $fred = $this->{ar}->newMap( initial => "f1=$i" );
         $array->add($fred);
     }
     my $k = 0;
-    foreach $i ( $array->getValues() ) {
+    foreach my $i ( $array->getValues() ) {
         $i->set( "f2", $k++ );
     }
-    for ( $i = 0 ; $i < 10 ; $i++ ) {
+    for ( my $i = 0 ; $i < 10 ; $i++ ) {
         my $fred = $array->get($i);
         $this->assert_equals( $i, $fred->get("f1") );
         $this->assert_equals( $i, $fred->get("f2") );
@@ -67,8 +69,7 @@ sub verify_gets {
 sub verify_find {
     my $this  = shift;
     my $array = $this->{ar}->newArray();
-    my $i;
-    for ( $i = 0 ; $i < 10 ; $i++ ) {
+    for ( my $i = 0 ; $i < 10 ; $i++ ) {
         my $fred = $this->{ar}->newMap( initial => "f1=$i" );
         $this->assert_equals( -1, $array->find($fred) );
         $array->add($fred);
@@ -79,9 +80,8 @@ sub verify_find {
 sub verify_remove {
     my $this  = shift;
     my $array = $this->{ar}->newArray();
-    my $i;
     my @nums;
-    for ( $i = 0 ; $i < 3 ; $i++ ) {
+    for ( my $i = 0 ; $i < 3 ; $i++ ) {
         my $fred = $this->{ar}->newMap( initial => "f1=$i" );
         push( @nums, $fred );
         $array->add($fred);

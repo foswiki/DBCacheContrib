@@ -1,8 +1,11 @@
 package DBCacheContribTestCase;
+
+use strict;
+use warnings;
+
 use FoswikiFnTestCase;
 our @ISA = qw( FoswikiFnTestCase );
 
-use strict;
 use Assert;
 use File::Temp;
 use Devel::Cycle;

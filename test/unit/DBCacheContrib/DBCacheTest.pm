@@ -1,8 +1,10 @@
 package DBCacheTest;
-use DBCacheContribTestCase;
-our @ISA = qw( DBCacheContribTestCase );
 
 use strict;
+use warnings;
+
+use DBCacheContribTestCase;
+our @ISA = qw( DBCacheContribTestCase );
 
 use Foswiki::Contrib::DBCacheContrib;
 use Foswiki::Contrib::DBCacheContrib::MemMap;

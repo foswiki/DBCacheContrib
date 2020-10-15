@@ -5,11 +5,11 @@ package Foswiki::Contrib::DBCacheContrib;
 use strict;
 use Assert;
 
+use Foswiki::Time          ();
 use Foswiki::Attrs         ();
 use Foswiki::Sandbox       ();
 use Foswiki::OopsException ();
 use Error qw(:try);
-use Time::ParseDate ();
 
 =begin TML
 
@@ -44,8 +44,8 @@ FormQueryPlugin for an example of this.
 
 =cut
 
-our $VERSION = '5.01';
-our $RELEASE = '26 Nov 2018';
+our $VERSION = '6.00';
+our $RELEASE = '24 Jan 2020';
 our $SHORTDESCRIPTION =
   'Reusable code that treats forms as if they were table rows in a database';
 
@@ -73,7 +73,10 @@ sub new {
         $Foswiki::cfg{DBCacheContrib}{Archivist} =
           'Foswiki::Contrib::DBCacheContrib::Archivist::Storable';
     }
-    eval "use $Foswiki::cfg{DBCacheContrib}{Archivist}";
+
+    my $path = $Foswiki::cfg{DBCacheContrib}{Archivist} . ".pm";
+    $path =~ s/::/\//g;
+    eval { require $path };
     die $@ if ($@);
 
     my $workDir = Foswiki::Func::getWorkArea('DBCacheContrib');
@@ -272,7 +275,14 @@ sub _loadTopic {
         }
     }
 
-    my @fields = $tom->find('FIELD');
+    my @fields = ();
+    if ($formDef) {
+        @fields = map { $_->{name} } @{ $formDef->getFields() };
+    }
+    else {
+        @fields = map { $_->{name} } $tom->find('FIELD');
+    }
+
     if ( scalar(@fields) ) {
         my $fields;
         if ($standardSchema) {
@@ -280,35 +290,52 @@ sub _loadTopic {
             $meta->set( 'META:FIELD', $fields );
         }
 
-        foreach my $field (@fields) {
+        foreach my $name (@fields) {
 
        # get field definition, check for date type and cache epoch value instead
+            my $field = $tom->get( 'FIELD', $name ) || {};
             my $epoch;
+            my $value = $field->{value};
+
             if ($formDef) {
-                my $fieldDef = $formDef->getField( $field->{name} );
-                if ( $fieldDef && $fieldDef->{type} =~ /^date/ ) {
-                    $epoch = parseDate( $field->{value} ) || 0;
+                my $fieldDef = $formDef->getField($name);
+                if ($fieldDef) {
+                    $value = $fieldDef->getDefaultValue()
+                      unless defined $value && $value ne "";
+
+# SMELL: special handling of a few non standard fields, should be closer to their definition
+                    if ( $fieldDef->{type} =~ /^date/ ) {
+                        $epoch = parseDate($value) || 0;
+                    }
+                    elsif ( $fieldDef->{type} =~ /^user/ ) {
+                        my @value = ();
+                        foreach my $v ( split( /\s*,\s*/, $value ) ) {
+                            my ( $userWeb, $userTopic ) =
+                              Foswiki::Func::normalizeWebTopicName(
+                                $Foswiki::cfg{UsersWebName}, $v );
+                            push @value, "$userWeb.$userTopic";
+                        }
+                        $value = join( ", ", @value );
+                    }
                 }
             }
 
             if ($standardSchema) {
                 my $att = $archivist->newMap( initial => $field );
                 $fields->add($att);
-                $lookup->set( $field->{name}, $att );
+                $lookup->set( $name, $att );
             }
             else {
                 unless ($form) {
                     $form = $archivist->newMap();
                 }
                 if ( defined $epoch ) {
-                    $form->set( $field->{name}, $epoch );
-                    $form->set(
-                        $field->{name} . '_origvalue',
-                        $field->{origvalue} // $field->{value}
-                    );
+                    $form->set( $name, $epoch );
+                    $form->set( $name . '_origvalue',
+                        $field->{origvalue} // $value );
                 }
                 else {
-                    $form->set( $field->{name}, $field->{value} );
+                    $form->set( $name, $value );
                 }
             }
         }
@@ -391,14 +418,13 @@ sub _loadTopic {
             my @records = $tom->find($key);
             next unless @records;
 
-            my $array;
+            my $array = $meta->fastget( lc($key) );
+            unless ( defined($array) ) {
+                $array = $archivist->newArray();
+                $meta->set( lc($key), $array );
+            }
             foreach my $record (@records) {
                 my $map = $archivist->newMap( initial => $record );
-                $array = $meta->fastget( lc($key) );
-                unless ( defined($array) ) {
-                    $array = $archivist->newArray();
-                    $meta->set( lc($key), $array );
-                }
                 $array->add($map);
             }
         }
@@ -530,7 +556,6 @@ sub load {
 sub loadTopic {
     my ( $this, $web, $topic ) = @_;
 
-    #print STDERR "loadTopic($web, $topic)\n";
     my $found = 0;
 
     eval { $found = $this->_updateTopic( $web, $topic ); };
@@ -723,13 +748,13 @@ sub parseDate {
         $string = "$1-$2-$3T$4:$5:$6$7";
     }
 
-    return Time::ParseDate::parsedate($string);
+    return Foswiki::Time::parseTime($string);
 }
 
 1;
 __END__
 
-Copyright (C) Crawford Currie 2004-2017, http://c-dot.co.uk
+Copyright (C) 2004-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

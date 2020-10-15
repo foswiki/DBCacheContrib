@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014-2017 Foswiki Contributors
+# Copyright (C) 2014-2020 Foswiki Contributors
 #
 package Foswiki::Contrib::DBCacheContrib::Archivist::Sereal;
 use strict;

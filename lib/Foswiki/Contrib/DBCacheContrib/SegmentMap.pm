@@ -1,9 +1,11 @@
 # See bottom of file for license and copyright information
 package Foswiki::Contrib::DBCacheContrib::SegmentMap;
+
 use strict;
 use warnings;
 
 use Foswiki::Contrib::DBCacheContrib::Map ();
+use Foswiki::Contrib::DBCacheContrib::MemMap;
 our @ISA = ('Foswiki::Contrib::DBCacheContrib::Map');
 
 use Assert;
@@ -17,7 +19,9 @@ sub new {
     my $segImpl = shift;
     my $this    = $class->SUPER::new(@_);
 
-    eval "use $segImpl;";
+    my $path = $segImpl . '.pm';
+    $path =~ s/::/\//g;
+    eval { require $path };
     die $@ if $@;
 
     $this->{_segmentsImpl} = $segImpl;
@@ -196,7 +200,7 @@ sub SCALAR {
 1;
 __END__
 
-Copyright (C) 2013-2017 Foswiki Contributors
+Copyright (C) 2013-2020 Foswiki Contributors
 
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend

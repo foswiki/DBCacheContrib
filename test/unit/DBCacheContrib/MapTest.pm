@@ -1,8 +1,11 @@
 package MapTest;
+
+use strict;
+use warnings;
+
 use DBCacheContribTestCase;
 our @ISA = qw( DBCacheContribTestCase );
 
-use strict;
 use Foswiki::Contrib::DBCacheContrib::Search;
 
 sub verify_parse1 {

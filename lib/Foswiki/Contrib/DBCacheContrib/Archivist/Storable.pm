@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2007-2017 Crawford Currie, http://c-dot.co.uk
+# Copyright (C) Crawford Currie 2007-2020, http://c-dot.co.uk and Foswiki Contributors
 #
 package Foswiki::Contrib::DBCacheContrib::Archivist::Storable;
 use strict;

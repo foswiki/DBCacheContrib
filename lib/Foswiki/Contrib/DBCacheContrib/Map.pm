@@ -147,7 +147,7 @@ sub parse {
 ---+++ =get($k, $root)= -> datum
    * =$k= - key
    * =$root= what # refers to
-Get the value corresponding to key =$k=; return undef if not set.
+Get the value corresponding to key =$k=; return if not set.
 
 *Subfield syntax*
    * =get("X",$r)= will get the subfield named =X=.
@@ -381,7 +381,7 @@ sub toString {
 1;
 __END__
 
-Copyright (C) Crawford Currie 2004-2017, http://c-dot.co.uk
+Copyright (C) 2004-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

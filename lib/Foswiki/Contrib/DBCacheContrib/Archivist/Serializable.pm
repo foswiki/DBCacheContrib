@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2017 Foswiki Contributors
+# Copyright (C) 2013-2020 Foswiki Contributors
 #
 
 # abstract class servig as a common base for Segmentable and Sereal archivist
@@ -137,11 +137,11 @@ sub updateCacheTime {
     }
     else {
 
-        foreach $seg ( $this->{root}->getSegments() ) {
-            if ( !defined( $seg->{_modified} ) || $seg->{_modified} ) {
+        foreach my $s ( $this->{root}->getSegments() ) {
+            if ( !defined( $s->{_modified} ) || $s->{_modified} ) {
 
-                #print STDERR "updating cache_time of segment $seg->{id}\n";
-                $seg->{'.cache_time'} = time();
+                #print STDERR "updating cache_time of segment $s->{id}\n";
+                $s->{'.cache_time'} = time();
             }
         }
     }

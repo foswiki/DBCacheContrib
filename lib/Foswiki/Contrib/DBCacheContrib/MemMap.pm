@@ -1,6 +1,9 @@
 # See bottom of file for license and copyright information
 package Foswiki::Contrib::DBCacheContrib::MemMap;
+
 use strict;
+use warnings;
+
 use Foswiki::Contrib::DBCacheContrib::Map ();
 our @ISA = ('Foswiki::Contrib::DBCacheContrib::Map');
 
@@ -84,7 +87,7 @@ sub getValues {
 1;
 __END__
 
-Copyright (C) Crawford Currie 2004-2018, http://c-dot.co.uk
+Copyright (C) 2004-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.
