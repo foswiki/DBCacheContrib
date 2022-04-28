@@ -1,14 +1,13 @@
 #
-# Copyright (C) 2013-2020 Foswiki Contributors
+# Copyright (C) 2013-2022 Foswiki Contributors
 #
 package Foswiki::Contrib::DBCacheContrib::Archivist::Segmentable;
 use strict;
 use warnings;
 
+use Storable                                                  ();
 use Foswiki::Contrib::DBCacheContrib::Archivist::Serializable ();
 our @ISA = ('Foswiki::Contrib::DBCacheContrib::Archivist::Serializable');
-
-use Storable ();
 
 sub serialize {
     my ( $this, $seg ) = @_;

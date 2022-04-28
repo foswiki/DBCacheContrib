@@ -17,6 +17,7 @@ NOTE: this is a pure virtual base class, and cannot be instantiated on its own.
 package Foswiki::Contrib::DBCacheContrib::Archivist;
 
 use strict;
+use warnings;
 use Assert;
 
 =begin TML
@@ -101,10 +102,22 @@ sub isModified {
     ASSERT("Pure virtual method not implemented");
 }
 
+=begin TML
+
+---++ ObjectMethod updateCacheTime()
+
+sets the timestamp of the cache being modified
+
+=cut
+
+sub updateCacheTime {
+    ASSERT("Pure virtual method not implemented");
+}
+
 1;
 __END__
 
-Copyright (C) 2007-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
+Copyright (C) 2007-2022 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 Foswiki Contributors are listed in the AUTHORS file in the root of this
 distribution. NOTE: Please extend that file, not this notice.
 

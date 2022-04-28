@@ -39,15 +39,13 @@ collection (see the doc on Scalar::Util::weaken for more info).
 package Foswiki::Contrib::DBCacheContrib::Map;
 
 use strict;
+use warnings;
 
+use Assert;
 use Tie::Hash ();
-
-# Mixin archivability
 use Foswiki::Contrib::DBCacheContrib::Archivable;
 
 our @ISA = ( 'Tie::Hash', 'Foswiki::Contrib::DBCacheContrib::Archivable' );
-
-use Assert;
 
 # To operate as a tie, subclasses must implement the methods of
 # Tie::Hash, except TIEHASH, and must implement new(). Additional new()
@@ -61,7 +59,7 @@ sub new {
     my %args  = @_;
     my $this  = bless( {}, $class );
     if ( $args{initial} ) {
-        if ( ref( $args{initial} ) eq 'HASH' ) {
+        if ( ref( $args{initial} ) ) {
             while ( my ( $k, $v ) = each %{ $args{initial} } ) {
                 $this->STORE( $k, $v );
             }
@@ -71,7 +69,7 @@ sub new {
         }
     }
     if ( $args{existing} ) {
-        if ( ref( $args{existing} ) eq $class ) {
+        if ( ref( $args{existing} ) ) {
             $this->{keys} = $args{existing}->{keys};
         }
     }
@@ -381,7 +379,7 @@ sub toString {
 1;
 __END__
 
-Copyright (C) 2004-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
+Copyright (C) 2004-2022 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

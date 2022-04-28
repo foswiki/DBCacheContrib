@@ -22,36 +22,54 @@
 # It would be better to cache entire structures in memory.
 #
 package Foswiki::Contrib::DBCacheContrib::Archivist::BDB;
-use strict;
 
-use Foswiki::Contrib::DBCacheContrib::Archivist ();
-our @ISA = ('Foswiki::Contrib::DBCacheContrib::Archivist');
+use strict;
+use warnings;
+
+#use Data::Dump qw(dump);
 
 use Assert;
-
-use BerkeleyDB ();
-
+use Encode ();
+use BerkeleyDB;
+use File::Path                                              ();
 use Foswiki::Contrib::DBCacheContrib::Archivist::BDB::Map   ();
 use Foswiki::Contrib::DBCacheContrib::Archivist::BDB::Array ();
+use Foswiki::Contrib::DBCacheContrib::Archivist             ();
+our @ISA = ('Foswiki::Contrib::DBCacheContrib::Archivist');
 
 # Type constants
-sub _SCALAR { 0 }
-sub _MAP    { 1 }
-sub _ARRAY  { 2 }
+use constant _SCALAR => 0;
+use constant _MAP    => 1;
+use constant _ARRAY  => 2;
 
 sub new {
     my ( $class, $cacheName ) = @_;
 
-    my $workDir = Foswiki::Func::getWorkArea('DBCacheContrib');
-    $cacheName =~ s/\//\./go;
-    my $file = $workDir . '/' . $cacheName;
+    $cacheName =~ s/\//\./g;
+    my $workDir =
+      Foswiki::Func::getWorkArea('DBCacheContrib') . "/bdb/$cacheName";
+    File::Path::make_path($workDir) unless -d $workDir;
 
+    my $file = $workDir . '/data.db';
     my $this = bless( {}, $class );
-    $this->{db} = new BerkeleyDB::Hash(
-        -Flags    => BerkeleyDB::DB_CREATE(),
-        -Filename => $file
+
+    #print STDERR "new db for $cacheName at $workDir\n";
+
+    $this->{env} = new BerkeleyDB::Env(
+        -Home  => $workDir,
+        -Flags => DB_CREATE | DB_INIT_CDB | DB_INIT_MPOOL,
     );
-    ASSERT( defined $this->{db}, "$file: $! $BerkeleyDB::Error" ) if DEBUG;
+    print STDERR "ERROR: $workDir: $! $BerkeleyDB::Error"
+      unless defined $this->{env};
+
+    $this->{db} = new BerkeleyDB::Hash(
+        -Flags    => DB_CREATE,
+        -Filename => $file,
+        -Env      => $this->{env},
+    );
+    print STDERR "ERROR: $file: $! $BerkeleyDB::Error"
+      unless defined $this->{db};
+
     $this->{stubs} = {};
     return $this;
 }
@@ -61,12 +79,16 @@ sub isModified {
     return 0;
 }
 
+sub updateCacheTime {
+}
+
 # Functions used to access the DB. These are intended to be used within the
 # package only.
 
 # Package private
 sub db_get {
     my ( $this, $key ) = @_;
+
     my $value;
     my $status = $this->{db}->db_get( $key, $value );
     return $status ? undef : $value;
@@ -122,6 +144,7 @@ sub DESTROY {
     #$this->{db}->db_sync();
     #$this->{db}->db_close();
     undef $this->{db};
+    undef $this->{env};
     undef $this->{stubs};
 }
 
@@ -176,6 +199,8 @@ sub encode {
     else {
         $value = '' unless defined $value;
     }
+
+    $value = Encode::encode_utf8($value);
     $value = pack( 'ca*', $type, $value );
     return $value;
 }
@@ -186,9 +211,13 @@ sub encode {
 # again. Perhaps it should.
 sub decode {
     my ( $this, $s ) = @_;
+
     return $s unless defined $s && length($s);
+
     my ( $type, $value ) = unpack( 'ca*', $s );
-    if ( $type != _SCALAR ) {
+    $value = Encode::decode_utf8($value);
+
+    if ( $type ne _SCALAR ) {
         if ( $type == _MAP ) {
             $this->{stubs}->{$value} ||= $this->newMap( id => $value );
         }
@@ -224,7 +253,7 @@ sub allocateID {
 1;
 __END__
 
-Copyright (C) 2009-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
+Copyright (C) 2009-2022 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

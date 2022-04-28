@@ -1,13 +1,13 @@
 #
-# Copyright (C) Crawford Currie 2007-2020, http://c-dot.co.uk and Foswiki Contributors
+# Copyright (C) Crawford Currie 2007-2022, http://c-dot.co.uk and Foswiki Contributors
 #
 package Foswiki::Contrib::DBCacheContrib::Archivist::Storable;
 use strict;
+use warnings;
 
+use Storable                                       ();
 use Foswiki::Contrib::DBCacheContrib::MemArchivist ();
 our @ISA = ('Foswiki::Contrib::DBCacheContrib::MemArchivist');
-
-use Storable ();
 
 sub new {
     my $class     = shift;
@@ -77,6 +77,7 @@ sub clear {
 
 sub DESTROY {
     my $this = shift;
+
     undef $this->{root};
 }
 

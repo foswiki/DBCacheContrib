@@ -5,14 +5,14 @@
 
 package Foswiki::Contrib::DBCacheContrib::MemArchivist;
 use strict;
+use warnings;
 
+use Assert;
+use Foswiki::Contrib::DBCacheContrib::MemMap    ();
+use Foswiki::Contrib::DBCacheContrib::MemArray  ();
 use Foswiki::Contrib::DBCacheContrib::Archivist ();
 
 our @ISA = ('Foswiki::Contrib::DBCacheContrib::Archivist');
-
-use Assert;
-use Foswiki::Contrib::DBCacheContrib::MemMap   ();
-use Foswiki::Contrib::DBCacheContrib::MemArray ();
 
 sub new {
     my ($class) = @_;
@@ -38,7 +38,7 @@ sub newArray {
 1;
 __END__
 
-Copyright (C) 2004-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
+Copyright (C) 2004-2022 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

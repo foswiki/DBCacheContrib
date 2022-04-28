@@ -27,17 +27,14 @@ tie(@array, ref($obj), $obj);
 package Foswiki::Contrib::DBCacheContrib::Array;
 
 use strict;
+use warnings;
 
-use Tie::Array ();
-
-# Mixin archivability
+use Assert;
+use Tie::Array                                   ();
+use Foswiki::Contrib::DBCacheContrib::Search     ();
 use Foswiki::Contrib::DBCacheContrib::Archivable ();
 
 our @ISA = ( 'Tie::Array', 'Foswiki::Contrib::DBCacheContrib::Archivable' );
-
-use Assert;
-
-use Foswiki::Contrib::DBCacheContrib::Search ();
 
 # This is a virtual base class. See MemArray for an example implementation.
 # To operate as a tie, subclasses must implement the methods of
@@ -394,7 +391,7 @@ sub mbrf {
 1;
 __END__
 
-Copyright (C) 2004-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
+Copyright (C) 2004-2022 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

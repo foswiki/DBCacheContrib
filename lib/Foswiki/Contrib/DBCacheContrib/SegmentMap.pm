@@ -37,14 +37,15 @@ sub DESTROY {
     # prevent recursive destruction
     return if $this->{_destroying};
     $this->{_destroying} = 1;
+    $this->SUPER::DESTROY();
 
     # destroy sub objects
     foreach my $seg ( $this->getSegments() ) {
         undef $seg;
     }
 
-    $this->{_segments}     = undef;
-    $this->{_segmentOfKey} = undef;
+    undef $this->{_segments};
+    undef $this->{_segmentOfKey};
 }
 
 sub addSegment {
@@ -200,7 +201,7 @@ sub SCALAR {
 1;
 __END__
 
-Copyright (C) 2013-2020 Foswiki Contributors
+Copyright (C) 2013-2022 Foswiki Contributors
 
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend

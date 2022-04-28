@@ -1,15 +1,14 @@
 #
-# Copyright (C) 2014-2020 Foswiki Contributors
+# Copyright (C) 2014-2022 Foswiki Contributors
 #
 package Foswiki::Contrib::DBCacheContrib::Archivist::Sereal;
 use strict;
 use warnings;
 
-use Foswiki::Contrib::DBCacheContrib::Archivist::Serializable ();
-our @ISA = ('Foswiki::Contrib::DBCacheContrib::Archivist::Serializable');
-
 use Sereal ();
 use Fcntl qw(:flock);
+use Foswiki::Contrib::DBCacheContrib::Archivist::Serializable ();
+our @ISA = ('Foswiki::Contrib::DBCacheContrib::Archivist::Serializable');
 
 sub init {
     my $this = shift;
@@ -28,9 +27,10 @@ sub init {
 sub DESTROY {
     my $this = shift;
 
+    $this->SUPER::DESTROY();
+
     undef $this->{encoder};
     undef $this->{decoder};
-    undef $this->{root};
 }
 
 sub serialize {

@@ -8,23 +8,24 @@
 # to a key.
 
 package Foswiki::Contrib::DBCacheContrib::Archivist::BDB::Map;
+
 use strict;
+use warnings;
 
-use Foswiki::Contrib::DBCacheContrib::Map ();
-
-# Mixin collections code
+use Assert;
+use Encode                                                       ();
+use Foswiki::Contrib::DBCacheContrib::Map                        ();
 use Foswiki::Contrib::DBCacheContrib::Archivist::BDB::Collection ();
 our @ISA = (
     'Foswiki::Contrib::DBCacheContrib::Map',
     'Foswiki::Contrib::DBCacheContrib::Archivist::BDB::Collection'
 );
 
-use Assert;
-
 # Create a new hash, or bind to an existing hash if id is passed
 sub new {
     my $class = shift;
     my %args  = @_;
+
     my $initial;
     if ( $args{initial} ) {
 
@@ -32,7 +33,10 @@ sub new {
         $initial = $args{initial};
         delete $args{initial};
     }
+
     my $this = $class->SUPER::new(%args);
+    $this->setArchivist( $args{archivist} );
+
     if ( defined $args{id} ) {
 
         # Binding to existing record
@@ -89,7 +93,6 @@ sub EXISTS {
 sub DELETE {
     my ( $this, $key ) = @_;
     $this->{archivist}->db_delete( $this->getID($key) );
-    $this->getKeys();
     my %keys = map { $_ => 1 } $this->getKeys();
     delete( $keys{$key} );
     $this->{archivist}->db_set( 'K' . $this->{id}, join( "\0", keys %keys ) );
@@ -112,7 +115,7 @@ sub getKeys {
     my $this = shift;
 
     unless ( defined $this->{keys} ) {
-        @{ $this->{keys} } =
+        @{ $this->{keys} } = map { Encode::decode_utf8($_) }
           split( "\0", $this->{archivist}->db_get( 'K' . $this->{id} ) || '' );
     }
 
@@ -132,7 +135,7 @@ sub getValues {
 1;
 __END__
 
-Copyright (C) 2009-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
+Copyright (C) 2009-2022 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

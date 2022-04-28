@@ -3,6 +3,7 @@
 package Foswiki::Contrib::DBCacheContrib;
 
 use strict;
+use warnings;
 use Assert;
 
 use Foswiki::Time          ();
@@ -44,8 +45,8 @@ FormQueryPlugin for an example of this.
 
 =cut
 
-our $VERSION = '6.00';
-our $RELEASE = '24 Jan 2020';
+our $VERSION = '7.00';
+our $RELEASE = '28 Apr 2022';
 our $SHORTDESCRIPTION =
   'Reusable code that treats forms as if they were table rows in a database';
 
@@ -79,7 +80,6 @@ sub new {
     eval { require $path };
     die $@ if ($@);
 
-    my $workDir = Foswiki::Func::getWorkArea('DBCacheContrib');
     $web =
       Foswiki::Sandbox::untaint( $web, \&Foswiki::Sandbox::validateWebName );
     my $this = bless(
@@ -277,11 +277,16 @@ sub _loadTopic {
 
     my @fields = ();
     if ($formDef) {
-        @fields = map { $_->{name} } @{ $formDef->getFields() };
+        my $fields = $formDef->getFields();
+        if ( defined $fields ) {
+            @fields = map { $_->{name} } @$fields if defined $fields;
+        }
+        else {
+            print STDERR "Woops: no formfields in form "
+              . $formDef->getPath . "\n";
+        }
     }
-    else {
-        @fields = map { $_->{name} } $tom->find('FIELD');
-    }
+    @fields = map { $_->{name} } $tom->find('FIELD') unless @fields;
 
     if ( scalar(@fields) ) {
         my $fields;
@@ -754,7 +759,7 @@ sub parseDate {
 1;
 __END__
 
-Copyright (C) 2004-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
+Copyright (C) 2004-2022 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

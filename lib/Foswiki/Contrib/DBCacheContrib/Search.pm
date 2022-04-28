@@ -69,11 +69,12 @@ my %operators = (
     'defined'            => { exec => \&OP_defined,            prec => 5 },
     'ALLOWS'             => { exec => \&OP_allows,             prec => 5 },
     'displayValue'       => { exec => \&OP_displayValue,       prec => 5 },
+    'translate'          => { exec => \&OP_translate,          prec => 5 },
 );
 
 my $bopRE =
 "AND\\b|OR\\b|!=|=~?|~|<=?|>=?|LATER_THAN\\b|EARLIER_THAN\\b|LATER_THAN_OR_ON\\b|EARLIER_THAN_OR_ON\\b|WITHIN_DAYS\\b|IS_DATE\\b|ALLOWS\\b";
-my $uopRE = "!|[lu]c\\b|d2n|n2d|length|defined|displayValue";
+my $uopRE = "!|[lu]c\\b|d2n|n2d|length|defined|displayValue|translate";
 
 my $now = time();
 
@@ -412,10 +413,20 @@ sub OP_displayValue {
     my $fieldValue = $map->getDisplayValue($fieldName);
     return unless $fieldValue;
 
-    $fieldValue = translate( $map, $fieldValue )
+    $fieldValue = $map->translate($fieldValue)
       if $fieldDef->{type} =~ /\+values/;
 
     return $fieldValue;
+}
+
+sub OP_translate {
+    my ( $r, $l, $map ) = @_;
+
+    return unless defined $r;
+
+    my $str = $r->matches($map);
+    return unless defined $str;
+    return $map->translate($str);
 }
 
 sub OP_ref {
@@ -752,45 +763,6 @@ sub OP_is_date {
     return ( $lval == $rval ) ? 1 : 0;
 }
 
-sub translate {
-    my ( $map, $string ) = @_;
-
-    return unless defined $string;
-
-    my $result;
-    if ( defined $globalContext ) {
-        $globalContext->{translations} ||= {};
-        $result = $globalContext->{translations}{$string};
-    }
-
-    unless ( defined $result ) {
-
-        $result = $string;
-        $result =~
-          s/^_+//;    # strip leading underscore as maketext doesnt like it
-
-        my $context = Foswiki::Func::getContext();
-        if ( $context->{'MultiLingualPluginEnabled'} ) {
-            require Foswiki::Plugins::MultiLingualPlugin;
-            my $web   = $map->fastget("web");
-            my $topic = $map->fastget("topic");
-
-            $result =
-              Foswiki::Plugins::MultiLingualPlugin::translate( $result, $web,
-                $topic );
-        }
-        else {
-            $result = $Foswiki::Plugins::SESSION->i18n->maketext($result);
-        }
-
-        $result //= $string;
-        $globalContext->{translations}{$string} = $result
-          if defined $globalContext;
-    }
-
-    return $result;
-}
-
 # PUBLIC STATIC calculate working days between two times
 # Published because it's useful elsewhere
 sub workingDays {
@@ -887,7 +859,7 @@ sub addOperator {
 1;
 __END__
 
-Copyright (C) 2004-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
+Copyright (C) 2004-2022 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

@@ -2,6 +2,7 @@
 package Foswiki::Contrib::DBCacheContrib::Archivist::BDB::Collection;
 
 use strict;
+use warnings;
 use Assert;
 
 sub getID {
@@ -18,7 +19,11 @@ sub FETCH {
 
 sub DESTROY {
     my $this = shift;
-    $this->{archivist} = undef;
+
+    $this->SUPER::DESTROY();
+    undef $this->{archivist};
+
+    # SMELL: more???
 }
 
 sub set {

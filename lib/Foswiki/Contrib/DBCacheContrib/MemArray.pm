@@ -1,12 +1,13 @@
 # See bottom of file for license and copyright information
 
 package Foswiki::Contrib::DBCacheContrib::MemArray;
-use strict;
 
-use Foswiki::Contrib::DBCacheContrib::Array ();
-our @ISA = ('Foswiki::Contrib::DBCacheContrib::Array');
+use strict;
+use warnings;
 
 use Assert;
+use Foswiki::Contrib::DBCacheContrib::Array ();
+our @ISA = ('Foswiki::Contrib::DBCacheContrib::Array');
 
 # Package-private array object that stores arrays in memory. Used with
 # Storable and File archivists.
@@ -17,6 +18,7 @@ sub DESTROY {
     # prevent recursive destruction
     return if $this->{_destroying};
     $this->{_destroying} = 1;
+    $this->SUPER::DESTROY();
 
     # destroy sub objects
     foreach my $value ( @{ $this->{values} } ) {
@@ -27,7 +29,7 @@ sub DESTROY {
             $value->DESTROY();
         }
     }
-    $this->{values} = undef;
+    undef $this->{values};
 }
 
 sub FETCH {
@@ -96,7 +98,7 @@ sub getValues {
 1;
 __END__
 
-Copyright (C) 2004-2020 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
+Copyright (C) 2004-2022 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.
