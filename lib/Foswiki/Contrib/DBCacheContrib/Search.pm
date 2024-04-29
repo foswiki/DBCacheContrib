@@ -480,7 +480,7 @@ sub OP_ref {
             next unless $map;
 
             # the tail is a property of the referenced topic
-            my $form = $map->fastget("form");
+            $form = $map->fastget("form");
             next unless $form;
             $form = $map->fastget($form);
             next unless $form;

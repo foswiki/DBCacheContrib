@@ -157,6 +157,7 @@ This code is based on an original development of Motorola Inc. and is protected 
 ---++ Change History
 
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  29 Apr 2024 | caching topics must be done within the context of this topic; improved indexing date formfields  |
 |  28 Apr 2022 | new =translate()= operator; \
                  improve parsing of data form fields; \
                  use strict and use warnings everywhere and shut down some of the resulting perl warnings; \
@@ -244,7 +245,7 @@ This code is based on an original development of Motorola Inc. and is protected 
 %META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/DBCacheContrib"}%
-%META:FIELD{name="Copyright" title="Copyright" value="Copyright &copy; 2002-2003 Motorola Inc. All Rights Reserved. Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. Portions copyright &copy; 2013-2022 Foswiki Contributors"}%
+%META:FIELD{name="Copyright" title="Copyright" value="Copyright &copy; 2002-2003 Motorola Inc. All Rights Reserved. Portions copyright &copy; 2004 Crawford Currie http://www.c-dot.co.uk. Portions copyright &copy; 2013-2024 Foswiki Contributors"}%
 %META:FIELD{name="License" title="License" value="GPL"}%
 %META:FIELD{name="Home" title="Home" value="https://foswiki.org/Extensions/%25TOPIC%25"}%
 %META:FIELD{name="Support" title="Support" value="https://foswiki.org/Support/%25TOPIC%25"}%

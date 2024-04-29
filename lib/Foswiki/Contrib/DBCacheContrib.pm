@@ -45,10 +45,11 @@ FormQueryPlugin for an example of this.
 
 =cut
 
-our $VERSION = '7.00';
-our $RELEASE = '28 Apr 2022';
+our $VERSION = '7.10';
+our $RELEASE = '%$RELEASE%';
 our $SHORTDESCRIPTION =
   'Reusable code that treats forms as if they were table rows in a database';
+our $LICENSECODE = '%$LICENSECODE%';
 
 our $INLINE_IMAGE =
 qr/<img\s+[^>]*?\s*src=["']data:(?:[a-z]+\/[a-z\-\.\+]+)?(?:;[a-z\-]+\=[a-z\-]+)?;base64,.*?["']\s*[^>]*?\s*\/?>/;
@@ -178,6 +179,8 @@ sub _loadTopic {
     my ( $this, $web, $topic ) = @_;
 
     my ( $tom, $text ) = Foswiki::Func::readTopic( $web, $topic );
+    Foswiki::Func::pushTopicContext( $web, $topic );
+
     my $standardSchema = $this->{_standardSchema};
     my $session        = $Foswiki::Plugins::SESSION;
 
@@ -253,7 +256,11 @@ sub _loadTopic {
             $meta->set( 'META:TOPICPARENT', $parent );
         }
         else {
-            $meta->set( 'parent', $hash->{name} );
+            my ( $parentWeb, $parentTopic ) =
+              Foswiki::Func::normalizeWebTopicName( $web, $hash->{name} );
+            my $parent =
+              $parentWeb eq $web ? $parentTopic : "$parentWeb.$parentTopic";
+            $meta->set( 'parent', $parent );
         }
     }
     if ( $hash = $tom->get('TOPICINFO') ) {
@@ -449,6 +456,8 @@ sub _loadTopic {
     $meta->set( 'text', $processedText );
     $meta->set( 'all', $all ) unless $standardSchema;
 
+    Foswiki::Func::popTopicContext();
+
     return $meta;
 }
 
@@ -509,7 +518,7 @@ sub _onReload {
 
 =begin TML
 
----+++ load( [updateCache]  ) -> ($readFromCache, $readFromFile, $removed)
+---+++ load( [refresh]  ) -> ($readFromCache, $readFromFile, $removed)
 
 Load the web into the database.
 Returns a list containing 3 numbers that give the number of topics
@@ -520,9 +529,9 @@ cached topics that have been removed.
 
 sub load {
     my $this = shift;
-    my $updateCache = shift || 0;
+    my $refresh = shift || 0;
 
-    $this->{_cache} = undef if $updateCache;
+    $this->{_cache} = undef if $refresh;
 
     return ( 0, 0, 0 ) if ( $this->{_cache} );    # already loaded?
 
@@ -538,10 +547,10 @@ sub load {
     my $readFromFile  = 0;
     my $removed       = 0;
 
-    if ( $updateCache || $readFromCache == 0 ) {
+    if ( $refresh || $readFromCache == 0 ) {
         eval {
             ( $readFromCache, $readFromFile, $removed ) =
-              $this->_updateCache($web);
+              $this->_updateCache( $web, $refresh );
         };
 
         if ($@) {
@@ -584,11 +593,14 @@ sub loadTopic {
 # PRIVATE update the cache for the specific topic only
 # optionally track read information, see _updateCache
 sub _updateTopic {
-    my ( $this, $web, $topic, $readInfo ) = @_;
+    my ( $this, $web, $topic, $readInfo, $refresh ) = @_;
 
     my $found = 0;
 
-    my $topcache = $this->{_cache}->FETCH($topic);
+    my $topcache =
+      ( defined $refresh && $refresh > 2 )
+      ? undef
+      : $this->{_cache}->FETCH($topic);
     if (
         $topcache
         && !uptodate(
@@ -628,7 +640,7 @@ sub _updateTopic {
 # PRIVATE update the cache from files
 # return the number of files changed in a tuple
 sub _updateCache {
-    my ( $this, $web ) = @_;
+    my ( $this, $web, $refresh ) = @_;
 
     my @readInfo = (
         0,    # read from cache
@@ -650,7 +662,7 @@ sub _updateCache {
 
     # load topics that are missing from the cache
     foreach my $topic ( Foswiki::Func::getTopicList($web) ) {
-        if ( $this->_updateTopic( $web, $topic, \@readInfo ) ) {
+        if ( $this->_updateTopic( $web, $topic, \@readInfo, $refresh ) ) {
 
             #print STDERR "... updated topic $web.$topic\n";
             push( @readTopic, $topic );
@@ -759,7 +771,7 @@ sub parseDate {
 1;
 __END__
 
-Copyright (C) 2004-2022 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
+Copyright (C) 2004-2024 Crawford Currie, http://c-dot.co.uk and Foswiki Contributors
 and Foswiki Contributors. Foswiki Contributors are listed in the
 AUTHORS file in the root of this distribution. NOTE: Please extend
 that file, not this notice.

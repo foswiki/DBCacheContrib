@@ -49,7 +49,12 @@ sub getDisplayValue {
 
     $val = $fieldDef->getDefaultValue() if !defined($val) || $val eq '';
 
-    if ( $fieldDef->can("getDisplayValue") ) {
+    if ( $val =~ /^\d+$/ && $fieldDef->isa("Foswiki::Form::Date") ) {
+
+        # special handling of legacy date formfield
+        $val = Foswiki::Func::formatTime($val);
+    }
+    elsif ( $fieldDef->can("getDisplayValue") ) {
         my $web   = $this->fastget("web");
         my $topic = $this->fastget("topic");
         $val = $fieldDef->getDisplayValue( $val, $web, $topic );
