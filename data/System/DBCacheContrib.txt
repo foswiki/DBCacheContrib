@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1543234776" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1734612055" format="1.1" version="1"}%
 ---+!! %TOPIC%
 %FORMFIELD{"Description"}%
 
@@ -88,7 +88,7 @@ The following operators are available:
 | <code>&gt;</code> | Boolean | Numeric > |
 | <code>&gt;=</code> | Boolean | Numeric >= |
 | <code>&lt;=</code> | Boolean | Numeric <= |
-| =@= | Node | Access node referenced by LHS. e.g. =ProjectLeader@TopicTitle= returns the formfield =TopicTitle= of the topic stored in the formfield =ProjectLeader=  |
+| =@= | Node | Access node referenced by LHS. e.g. =@ProjectLeader.TopicTitle= returns the formfield =TopicTitle= of the topic stored in the formfield =ProjectLeader=  |
 | =lc= | String | Unary lower case |
 | =displayValue= | String | return display value of a formfield, e.g. =displayValue('State')= |
 | =uc= | String | Unary UPPER CASE |
@@ -157,6 +157,7 @@ This code is based on an original development of Motorola Inc. and is protected 
 ---++ Change History
 
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  19 Dec 2024 | fix updating the topic cache missing some updates frequently |
 |  29 Apr 2024 | caching topics must be done within the context of this topic; improved indexing date formfields  |
 |  28 Apr 2022 | new =translate()= operator; \
                  improve parsing of data form fields; \

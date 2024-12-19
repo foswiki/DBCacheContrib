@@ -312,6 +312,9 @@ sub _loadTopic {
             if ($formDef) {
                 my $fieldDef = $formDef->getField($name);
                 if ($fieldDef) {
+                    $value //= "";
+
+                    # index default values into the cache
                     $value = $fieldDef->getDefaultValue()
                       unless defined $value && $value ne "";
 
@@ -423,7 +426,7 @@ sub _loadTopic {
     foreach my $key ( keys %Foswiki::Meta::VALIDATE ) {
         next
           if $key =~
-/^(TOPICINFO|CREATEINFO|TOPICMOVED|TOPICPARENT|FILEATTACHMENT|FORM|FIELD|PREFERENCE|VERSIONS|COMMENT)$/;
+/^(TOPICINFO|CREATEINFO|TOPICMOVED|TOPICPARENT|FILEATTACHMENT|FORM|FIELD|PREFERENCE|VERSIONS)$/;
         my $validation = $Foswiki::Meta::VALIDATE{$key};
 
         if ( $validation->{many} ) {
@@ -463,6 +466,8 @@ sub _loadTopic {
 
 sub cleanUpText {
     my $this = shift;
+
+    return unless defined $_[0];
 
     # remove inline images as they take up a lot of RAM
     $_[0] =~ s/$INLINE_IMAGE/_IMAGE_/i;
@@ -568,11 +573,16 @@ sub load {
 }
 
 sub loadTopic {
-    my ( $this, $web, $topic ) = @_;
+    my ( $this, $web, $topic, $refresh ) = @_;
 
     my $found = 0;
 
-    eval { $found = $this->_updateTopic( $web, $topic ); };
+    my @readInfo = (
+        0,    # read from cache
+        0,    # read from file
+        0,    # removed
+    );
+    eval { $found = $this->_updateTopic( $web, $topic, \@readInfo, $refresh ); };
 
     if ($@) {
         ASSERT( 0, $@ ) if DEBUG;

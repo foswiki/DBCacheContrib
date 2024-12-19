@@ -14,6 +14,7 @@ lib/Foswiki/Contrib/DBCacheContrib/Archivist/Storable.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Array.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/Config.spec 0644
 lib/Foswiki/Contrib/DBCacheContrib/DEPENDENCIES 0644
+lib/Foswiki/Contrib/DBCacheContrib/MANIFEST 0644
 lib/Foswiki/Contrib/DBCacheContrib/Map.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/MemArchivist.pm 0644
 lib/Foswiki/Contrib/DBCacheContrib/MemArray.pm 0644
